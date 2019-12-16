@@ -3,6 +3,7 @@ component Editor {
     save,
     format,
     userStatus,
+    isLoggedIn,
     logout,
     fork,
     page
@@ -42,6 +43,8 @@ component Editor {
           action = handleSave
         }
       ]
+  } when {
+    isMine
   }
 
   state value : Maybe(String) = Maybe::Nothing
@@ -50,6 +53,14 @@ component Editor {
   style base {
     grid-template-columns: 1fr 1fr;
     display: grid;
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+
+      .CodeMirror {
+        width: 100vw;
+      }
+    }
   }
 
   style code-header {
@@ -59,11 +70,23 @@ component Editor {
     padding: 6px 10px;
     padding-left: 20px;
 
-    display: flex;
+    grid-template-columns: 1fr min-content;
+    align-items: center;
+    grid-gap: 30px;
+    display: grid;
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+      grid-gap: 10px;
+    }
   }
 
   style code {
     border-right: 4px solid #1e2128;
+
+    @media (max-width: 900px) {
+      border-right: 0;
+    }
   }
 
   style preview {
@@ -75,16 +98,45 @@ component Editor {
     height: 100%;
     width: 100%;
     border: 0;
+
+    @media (max-width: 900px) {
+      min-height: 100vh;
+    }
+  }
+
+  style hint {
+    font-size: 14px;
+    margin-right: 10px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 600;
+    white-space: nowrap;
+    align-items: center;
+    display: flex;
+
+    svg {
+      fill: currentColor;
+      margin-right: 6px;
+    }
+  }
+
+  style code-buttons {
+    align-items: center;
+    margin-left: auto;
+    display: flex;
   }
 
   style input {
     background: transparent;
-    margin-right: auto;
     font-weight: 600;
     font-family: inherit;
     color: #EEE;
     font-size: 18px;
+    flex: 1;
     border: 0;
+
+    if (isMine) {
+      border-bottom: 1px dashed rgba(255,255,255,0.3);
+    }
   }
 
   fun setValue2 (value : String) : Promise(Never, Void) {
@@ -112,67 +164,73 @@ component Editor {
     }
   }
 
+  get isMine : Bool {
+    case (userStatus) {
+      UserStatus::LoggedIn user => user.id == project.userId
+      UserStatus::LoggedOut => false
+      UserStatus::Initial => false
+    }
+  }
+
   fun render : Html {
     <div::base>
       <div::code>
         <div::code-header>
-          <input::input
-            onChange={setTitle}
-            onBlur={handleSave}
-            value={Maybe.withDefault(project.title, title)}/>
-
-          case (page) {
-            Page::Project =>
-              case (userStatus) {
-                UserStatus::LoggedIn user =>
-                  if (user.id == project.userId) {
-                    <>
-                      <Button onClick={handleFormat}>
-                        <Icons.Note/>
-
-                        <span>
-                          "Format"
-                        </span>
-                      </Button>
-
-                      <Spacer width={6}/>
-
-                      <Button onClick={handleSave}>
-                        <Icons.Play/>
-
-                        <span>
-                          "Compile"
-                        </span>
-                      </Button>
-                    </>
-                  } else {
-                    <>
-                      <Button onClick={() : Promise(Never, Void) { fork(project.id) }}>
-                        <Icons.Fork/>
-
-                        <span>
-                          "Fork"
-                        </span>
-                      </Button>
-                    </>
-                  }
-
-                UserStatus::LoggedOut =>
-                  <>
-                    <Button disabled={true}>
-                      <Icons.Fork/>
-
-                      <span>
-                        "Fork"
-                      </span>
-                    </Button>
-                  </>
-
-                UserStatus::Initial => <></>
-              }
-
-            => <></>
+          if (isMine) {
+            <input::input
+              onChange={setTitle}
+              onBlur={handleSave}
+              value={Maybe.withDefault(project.title, title)}/>
+          } else {
+            <div::input>
+              <{ Maybe.withDefault(project.title, title) }>
+            </div>
           }
+
+          <div::code-buttons>
+            if (isMine) {
+              <>
+                <Button onClick={handleFormat}>
+                  <Icons.Note/>
+
+                  <span>
+                    "Format"
+                  </span>
+                </Button>
+
+                <Spacer width={6}/>
+
+                <Button onClick={handleSave}>
+                  <Icons.Play/>
+
+                  <span>
+                    "Compile"
+                  </span>
+                </Button>
+              </>
+            } else {
+              <>
+                if (!isLoggedIn) {
+                  <span::hint>
+                    <Icons.Info/>
+                    "Log in to fork this sandbox."
+                  </span>
+                }
+
+                <Button
+                  onClick={() : Promise(Never, Void) { fork(project.id) }}
+                  disabled={!isLoggedIn}>
+
+                  <Icons.Fork/>
+
+                  <span>
+                    "Fork"
+                  </span>
+
+                </Button>
+              </>
+            }
+          </div>
         </div>
 
         <CodeMirror

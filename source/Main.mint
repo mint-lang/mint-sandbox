@@ -41,6 +41,13 @@ store Application {
     next { page = page }
   }
 
+  get isLoggedIn : Bool {
+    case (userStatus) {
+      UserStatus::LoggedIn => true
+      => false
+    }
+  }
+
   fun initialize : Promise(Never, Void) {
     sequence {
       response =
