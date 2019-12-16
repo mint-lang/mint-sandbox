@@ -1,0 +1,19 @@
+{
+  "name": "mint-sandbox",
+  "application": {
+    "title": "Mint Sandbox",
+    "head": "assets/head.html"
+  },
+  "source-directories": [
+    "source"
+  ],
+  "test-directories": [
+    "tests"
+  ],
+  "dependencies": {
+    "mint-codemirror": {
+      "repository": "https://github.com/mint-lang/mint-codemirror",
+      "constraint": "6.0.0 <= v < 7.0.0"
+    }
+  }
+}
