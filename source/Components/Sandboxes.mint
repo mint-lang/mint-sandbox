@@ -26,13 +26,31 @@ component Sandboxes {
   }
 
   style info-title {
-    font-size: 16px;
+    border-bottom: 1px dashed rgba(255,255,255,0.3);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
     font-weight: bold;
+    font-size: 16px;
   }
 
-  style info-date {
-    color: rgba(255,255,255,0.6);
+  style info-user {
+    color: rgba(255,255,255,0.8);
     font-size: 14px;
+
+    text-transform: uppercase;
+    font-weight: 600;
+
+    align-items: center;
+    display: flex;
+
+    img {
+      border-radius: 50%;
+      background: white;
+      margin-right: 10px;
+      padding: 2px;
+      height: 16px;
+      width: 16px;
+    }
   }
 
   style grid {
@@ -52,9 +70,9 @@ component Sandboxes {
               <{ sandbox.title }>
             </div>
 
-            <div::info-date>
-              "Created at "
-              <{ Time.relative(sandbox.createdAt, Time.now()) }>
+            <div::info-user>
+              <img src={sandbox.user.image}/>
+              <{ sandbox.user.nickname }>
             </div>
           </div>
         </a>

@@ -30,7 +30,8 @@ record Project {
   userId : Number using "user_id",
   content : String,
   title : String,
-  id : String
+  id : String,
+  user : User
 }
 
 store Application {
@@ -77,6 +78,9 @@ store Application {
       |> Http.send()
 
       next { userStatus = UserStatus::LoggedOut }
+
+      Window.navigate("/")
+      Notifications.notifyDefault("Logged out.")
     } catch {
       next { userStatus = UserStatus::LoggedOut }
     }
@@ -140,6 +144,29 @@ store Application {
     }
   }
 
+  fun remove (id : String) : Promise(Never, Void) {
+    sequence {
+      response =
+        "http://localhost:3001/sandbox/#{id}"
+        |> Http.delete()
+        |> Http.header("Content-Type", "application/json")
+        |> Http.withCredentials(true)
+        |> Http.send()
+
+      object =
+        Json.parse(response.body)
+        |> Maybe.toResult("")
+
+      decoded =
+        decode object as Project
+
+      Window.navigate("/my-sandboxes")
+      Notifications.notifyDefault("Deleted successfully!")
+    } catch {
+      next { page = Page::Error }
+    }
+  }
+
   fun format (id : String) : Promise(Never, Void) {
     sequence {
       response =
@@ -177,6 +204,7 @@ store Application {
         decode object as Project
 
       Window.navigate("/sandboxes/#{decoded.id}")
+      Notifications.notifyDefault("Created sandbox!")
     } catch {
       next { page = Page::Error }
     }

@@ -13,6 +13,10 @@ component Button {
     border-radius: 2px;
 
     case (type) {
+      "danger" =>
+        border-color: #d72800;
+        background: #880606;
+
       "primary" =>
         border-color: #009d3d;
         background: #04662b;
@@ -35,8 +39,15 @@ component Button {
     cursor: pointer;
 
     &:hover {
-      background: #04662b;
-      border-color: #009d3d;
+      case (type) {
+        "danger" =>
+          border-color: #e83108;
+          background: #a20505;
+
+        =>
+          background: #04662b;
+          border-color: #009d3d;
+      }
     }
 
     &:disabled {

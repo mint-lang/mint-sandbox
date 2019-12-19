@@ -3,6 +3,7 @@ component Editor {
     save,
     format,
     userStatus,
+    remove,
     isLoggedIn,
     logout,
     fork,
@@ -12,6 +13,12 @@ component Editor {
   property project : Project = {
     updatedAt = Time.now(),
     createdAt = Time.now(),
+    user =
+      {
+        nickname = "",
+        image = "",
+        id = 0
+      },
     title = "",
     id = "",
     userId = 0,
@@ -164,6 +171,16 @@ component Editor {
     }
   }
 
+  fun handleDelete : Promise(Never, Void) {
+    sequence {
+      Window.confirm("Are you sure?")
+      remove(project.id)
+      next {  }
+    } catch {
+      next {  }
+    }
+  }
+
   get isMine : Bool {
     case (userStatus) {
       UserStatus::LoggedIn user => user.id == project.userId
@@ -190,6 +207,20 @@ component Editor {
           <div::code-buttons>
             if (isMine) {
               <>
+                <Button
+                  onClick={handleDelete}
+                  type="danger">
+
+                  <Icons.Trashcan/>
+
+                  <span>
+                    "Delete"
+                  </span>
+
+                </Button>
+
+                <Spacer width={6}/>
+
                 <Button onClick={handleFormat}>
                   <Icons.Note/>
 

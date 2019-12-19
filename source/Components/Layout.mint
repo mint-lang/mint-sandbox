@@ -35,9 +35,9 @@ component Layout {
   fun render : Html {
     <div::base>
       <div::toolbar>
-        <div::brand>
+        <a::brand href="/">
           <Logo/>
-        </div>
+        </a>
 
         case (userStatus) {
           UserStatus::LoggedIn user =>
