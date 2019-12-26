@@ -268,6 +268,7 @@ component Editor {
           value={Maybe.withDefault(project.content, value)}
           javascripts=[]
           styles=[]
+          readOnly={!isLoggedIn}
           mode="mint"
           theme="one-dark"
           onChange={setValue2}/>
