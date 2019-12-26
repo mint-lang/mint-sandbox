@@ -62,7 +62,10 @@ component Sandboxes {
   fun render : Html {
     <div::grid>
       for (sandbox of sandboxes) {
-        <a::sandbox href="/sandboxes/#{sandbox.id}">
+        <a::sandbox
+          href="/sandboxes/#{sandbox.id}"
+          key={sandbox.id}>
+
           <Preview url="http://localhost:3001/sandbox/#{sandbox.id}/preview"/>
 
           <div::info>
@@ -75,6 +78,7 @@ component Sandboxes {
               <{ sandbox.user.nickname }>
             </div>
           </div>
+
         </a>
       }
     </div>

@@ -7,9 +7,6 @@
   "source-directories": [
     "source"
   ],
-  "test-directories": [
-    "tests"
-  ],
   "dependencies": {
     "mint-codemirror": {
       "repository": "https://github.com/mint-lang/mint-codemirror",

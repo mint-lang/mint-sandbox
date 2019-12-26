@@ -18,7 +18,7 @@ component Notification {
   }
 
   style content {
-    background: rgba(17, 17, 17, 0.9);
+    background: rgba(17, 17, 17, 0.95);
     border-radius: 2px;
     padding: 14px 24px;
     cursor: pointer;

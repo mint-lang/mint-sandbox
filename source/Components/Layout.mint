@@ -42,6 +42,20 @@ component Layout {
         case (userStatus) {
           UserStatus::LoggedIn user =>
             <>
+              <Button
+                type="primary"
+                onClick={Application.new}>
+
+                <Icons.Plus/>
+
+                <span>
+                  "Create Sandbox"
+                </span>
+
+              </Button>
+
+              <Spacer width={6}/>
+
               <Button href="/my-sandboxes">
                 <Icons.Book/>
 
@@ -73,20 +87,7 @@ component Layout {
         Page::Sandboxes sandboxes =>
           <Page
             title="My Sandboxes"
-            description="These are the sandboxes you created."
-            actions=[
-              <Button
-                type="primary"
-                onClick={Application.new}>
-
-                <Icons.Plus/>
-
-                <span>
-                  "Create Sandbox"
-                </span>
-
-              </Button>
-            ]>
+            description="These are the sandboxes you created.">
 
             <Sandboxes sandboxes={sandboxes}/>
 
@@ -94,12 +95,12 @@ component Layout {
 
         Page::Project project => <Editor project={project}/>
 
-        Page::Home =>
+        Page::Home recent =>
           <Page
-            title="Mint Examples"
-            description="These sandboxes contain examples of things in Mint.">
+            title="Recently updated"
+            description="These sandboxes have been updated recently.">
 
-            ""
+            <Sandboxes sandboxes={recent}/>
 
           </Page>
 

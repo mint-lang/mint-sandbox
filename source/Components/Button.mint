@@ -45,8 +45,8 @@ component Button {
           background: #a20505;
 
         =>
-          background: #04662b;
           border-color: #009d3d;
+          background: #04662b;
       }
     }
 
