@@ -31,7 +31,7 @@ component UserInfo {
   }
 
   fun login : Promise(Never, Void) {
-    `window.location = "#{@ENDPOINT}/auth/github"`
+    `window.location = #{@ENDPOINT} + "/auth/github"`
   }
 
   fun render : Html {
