@@ -66,7 +66,7 @@ component Sandboxes {
           href="/sandboxes/#{sandbox.id}"
           key={sandbox.id}>
 
-          <Preview url="http://localhost:3001/sandbox/#{sandbox.id}/preview"/>
+          <Preview url="#{@ENDPOINT}/sandbox/#{sandbox.id}/preview"/>
 
           <div::info>
             <div::info-title>

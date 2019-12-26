@@ -274,7 +274,7 @@ component Editor {
       </div>
 
       <div::preview>
-        <iframe::iframe as frame src="http://localhost:3001/sandbox/#{project.id}/preview"/>
+        <iframe::iframe as frame src="#{@ENDPOINT}/sandbox/#{project.id}/preview"/>
       </div>
     </div>
   }

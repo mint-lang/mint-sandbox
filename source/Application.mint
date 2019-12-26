@@ -16,7 +16,7 @@ store Application {
   fun initialize : Promise(Never, Void) {
     sequence {
       response =
-        "http://localhost:3001/sandbox/user"
+        "#{@ENDPOINT}/sandbox/user"
         |> Http.get()
         |> Http.withCredentials(true)
         |> Http.send()
@@ -36,7 +36,7 @@ store Application {
 
   fun logout : Promise(Never, Void) {
     sequence {
-      "http://localhost:3001/sandbox/logout"
+      "#{@ENDPOINT}/sandbox/logout"
       |> Http.get()
       |> Http.withCredentials(true)
       |> Http.send()
@@ -63,7 +63,7 @@ store Application {
         }
 
       response =
-        "http://localhost:3001/sandbox/#{id}"
+        "#{@ENDPOINT}/sandbox/#{id}"
         |> Http.put()
         |> Http.header("Content-Type", "application/json")
         |> Http.jsonBody(body)
@@ -86,7 +86,7 @@ store Application {
   fun fork (id : String) : Promise(Never, Void) {
     sequence {
       response =
-        "http://localhost:3001/sandbox/#{id}/fork"
+        "#{@ENDPOINT}/sandbox/#{id}/fork"
         |> Http.post()
         |> Http.header("Content-Type", "application/json")
         |> Http.withCredentials(true)
@@ -111,7 +111,7 @@ store Application {
   fun remove (id : String) : Promise(Never, Void) {
     sequence {
       response =
-        "http://localhost:3001/sandbox/#{id}"
+        "#{@ENDPOINT}/sandbox/#{id}"
         |> Http.delete()
         |> Http.header("Content-Type", "application/json")
         |> Http.withCredentials(true)
@@ -134,7 +134,7 @@ store Application {
   fun format (id : String) : Promise(Never, Void) {
     sequence {
       response =
-        "http://localhost:3001/sandbox/#{id}/format"
+        "#{@ENDPOINT}/sandbox/#{id}/format"
         |> Http.post()
         |> Http.withCredentials(true)
         |> Http.send()
@@ -155,7 +155,7 @@ store Application {
   fun new : Promise(Never, Void) {
     sequence {
       response =
-        "http://localhost:3001/sandbox"
+        "#{@ENDPOINT}/sandbox"
         |> Http.post()
         |> Http.withCredentials(true)
         |> Http.send()
@@ -177,7 +177,7 @@ store Application {
   fun mySandboxes : Promise(Never, Void) {
     sequence {
       response =
-        "http://localhost:3001/sandbox"
+        "#{@ENDPOINT}/sandbox"
         |> Http.get()
         |> Http.withCredentials(true)
         |> Http.send()
@@ -199,7 +199,7 @@ store Application {
   fun recent : Promise(Never, Void) {
     sequence {
       response =
-        "http://localhost:3001/sandbox/recent"
+        "#{@ENDPOINT}/sandbox/recent"
         |> Http.get()
         |> Http.withCredentials(true)
         |> Http.send()
@@ -221,7 +221,7 @@ store Application {
   fun load (id : String) : Promise(Never, Void) {
     sequence {
       response =
-        "http://localhost:3001/sandbox/#{id}"
+        "#{@ENDPOINT}/sandbox/#{id}"
         |> Http.get()
         |> Http.withCredentials(true)
         |> Http.send()
