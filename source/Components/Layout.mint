@@ -1,4 +1,14 @@
 component Layout {
+  state mobile : Bool = false
+
+  use Provider.MediaQuery {
+    query = "(max-width: 800px)",
+    changes =
+      (value : Bool) : Promise(Never, Void) {
+        next { mobile = value }
+      }
+  }
+
   connect Application exposing {
     userStatus,
     logout,
@@ -19,6 +29,13 @@ component Layout {
     display: flex;
   }
 
+  style menu {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 14px;
+    color: #EEE;
+  }
+
   style brand {
     align-items: center;
     margin-right: auto;
@@ -32,6 +49,43 @@ component Layout {
     margin: 0 10px;
   }
 
+  fun handleMenu : Promise(Never, Void) {
+    try {
+      items =
+        case (userStatus) {
+          UserStatus::LoggedIn user =>
+            [
+              {
+                action = (event : Html.Event) : Promise(Never, Void) { Application.new() },
+                label = "Create Sandbox",
+                icon = <Icons.Plus/>
+              },
+              {
+                action = (event : Html.Event) : Promise(Never, Void) { Window.navigate("/my-sandboxes") },
+                label = "My Sandboxes",
+                icon = <Icons.Book/>
+              },
+              {
+                action = (event : Html.Event) : Promise(Never, Void) { logout() },
+                label = "Logout",
+                icon = <Icons.SignOut/>
+              }
+            ]
+
+          =>
+            [
+              {
+                action = (event : Html.Event) : Promise(Never, Void) { `window.location = #{@ENDPOINT} + "/auth/github"` },
+                label = "Log in with Github",
+                icon = <Icons.Github/>
+              }
+            ]
+        }
+
+      ActionSheet.show(items)
+    }
+  }
+
   fun render : Html {
     <div::base>
       <div::toolbar>
@@ -39,48 +93,56 @@ component Layout {
           <Logo/>
         </a>
 
-        case (userStatus) {
-          UserStatus::LoggedIn user =>
-            <>
-              <Button
-                type="primary"
-                onClick={Application.new}>
+        if (mobile) {
+          <div::menu onClick={handleMenu}>
+            "Menu"
+          </div>
+        } else {
+          <>
+            case (userStatus) {
+              UserStatus::LoggedIn user =>
+                <>
+                  <Button
+                    type="primary"
+                    onClick={Application.new}>
 
-                <Icons.Plus/>
+                    <Icons.Plus/>
 
-                <span>
-                  "Create Sandbox"
-                </span>
+                    <span>
+                      "Create Sandbox"
+                    </span>
 
-              </Button>
+                  </Button>
 
-              <Spacer width={6}/>
+                  <Spacer width={6}/>
 
-              <Button href="/my-sandboxes">
-                <Icons.Book/>
+                  <Button href="/my-sandboxes">
+                    <Icons.Book/>
 
-                <span>
-                  "My Sandboxes"
-                </span>
-              </Button>
+                    <span>
+                      "My Sandboxes"
+                    </span>
+                  </Button>
 
-              <Spacer width={6}/>
+                  <Spacer width={6}/>
 
-              <Button onClick={logout}>
-                <Icons.SignOut/>
+                  <Button onClick={logout}>
+                    <Icons.SignOut/>
 
-                <span>
-                  "Logout"
-                </span>
-              </Button>
+                    <span>
+                      "Logout"
+                    </span>
+                  </Button>
 
-              <div::toolbar-separator/>
-            </>
+                  <div::toolbar-separator/>
+                </>
 
-          => <></>
+              => <></>
+            }
+
+            <UserInfo/>
+          </>
         }
-
-        <UserInfo/>
       </div>
 
       case (page) {

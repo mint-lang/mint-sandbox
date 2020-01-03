@@ -2,7 +2,12 @@
   "name": "mint-sandbox",
   "application": {
     "title": "Mint Sandbox",
-    "head": "assets/head.html"
+    "head": "assets/head.html",
+    "meta": {
+      "description": "A sandbox for Mint applications.",
+      "viewport": "width=device-width, initial-scale=1, shrink-to-fit=no",
+      "charset": "utf-8"
+    }
   },
   "source-directories": [
     "source"
