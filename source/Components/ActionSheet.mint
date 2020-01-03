@@ -46,6 +46,7 @@ global component ActionSheet {
 
   style item {
     align-items: center;
+    font-weight: 600;
     padding: 0 15px;
     display: flex;
     height: 50px;
@@ -56,7 +57,7 @@ global component ActionSheet {
   }
 
   style label {
-    line-height: 18px;
+    line-height: 14px;
     font-weight: 500;
     height: 16px;
   }

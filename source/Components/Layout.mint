@@ -2,7 +2,7 @@ component Layout {
   state mobile : Bool = false
 
   use Provider.MediaQuery {
-    query = "(max-width: 800px)",
+    query = "(max-width: 900px)",
     changes =
       (value : Bool) : Promise(Never, Void) {
         next { mobile = value }
@@ -34,6 +34,14 @@ component Layout {
     font-weight: bold;
     font-size: 14px;
     color: #EEE;
+
+    align-items: center;
+    display: flex;
+
+    svg {
+      fill: currentColor;
+      margin-left: 10px;
+    }
   }
 
   style brand {
@@ -96,6 +104,7 @@ component Layout {
         if (mobile) {
           <div::menu onClick={handleMenu}>
             "Menu"
+            <Icons.Grabber/>
           </div>
         } else {
           <>

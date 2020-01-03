@@ -1,4 +1,14 @@
 component Editor {
+  state mobile : Bool = false
+
+  use Provider.MediaQuery {
+    query = "(max-width: 900px)",
+    changes =
+      (value : Bool) : Promise(Never, Void) {
+        next { mobile = value }
+      }
+  }
+
   connect Application exposing {
     save,
     format,
@@ -83,7 +93,7 @@ component Editor {
     display: grid;
 
     @media (max-width: 900px) {
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr min-content;
       grid-gap: 10px;
     }
   }
@@ -92,6 +102,7 @@ component Editor {
     border-right: 4px solid #1e2128;
 
     @media (max-width: 900px) {
+      border-bottom: 4px solid #1e2128;
       border-right: 0;
     }
   }
@@ -107,7 +118,7 @@ component Editor {
     border: 0;
 
     @media (max-width: 900px) {
-      min-height: 100vh;
+      min-height: 50vh;
     }
   }
 
@@ -140,9 +151,19 @@ component Editor {
     font-size: 18px;
     flex: 1;
     border: 0;
+    width: 100%;
 
     if (isMine) {
       border-bottom: 1px dashed rgba(255,255,255,0.3);
+    }
+  }
+
+  style menu {
+    justify-self: center;
+    height: 24px;
+
+    svg {
+      fill: #EEE;
     }
   }
 
@@ -181,6 +202,31 @@ component Editor {
     }
   }
 
+  fun handleMenu : Promise(Never, Void) {
+    try {
+      items =
+        [
+          {
+            action = (event : Html.Event) : Promise(Never, Void) { handleDelete() },
+            label = "Delete",
+            icon = <Icons.Trashcan/>
+          },
+          {
+            action = (event : Html.Event) : Promise(Never, Void) { handleFormat() },
+            label = "Format",
+            icon = <Icons.Note/>
+          },
+          {
+            action = (event : Html.Event) : Promise(Never, Void) { handleSave() },
+            label = "Compile",
+            icon = <Icons.Play/>
+          }
+        ]
+
+      ActionSheet.show(items)
+    }
+  }
+
   get isMine : Bool {
     case (userStatus) {
       UserStatus::LoggedIn user => user.id == project.userId
@@ -206,39 +252,45 @@ component Editor {
 
           <div::code-buttons>
             if (isMine) {
-              <>
-                <Button
-                  onClick={handleDelete}
-                  type="danger">
+              if (mobile) {
+                <div::menu onClick={handleMenu}>
+                  <Icons.KebabVertical/>
+                </div>
+              } else {
+                <>
+                  <Button
+                    onClick={handleDelete}
+                    type="danger">
 
-                  <Icons.Trashcan/>
+                    <Icons.Trashcan/>
 
-                  <span>
-                    "Delete"
-                  </span>
+                    <span>
+                      "Delete"
+                    </span>
 
-                </Button>
+                  </Button>
 
-                <Spacer width={6}/>
+                  <Spacer width={6}/>
 
-                <Button onClick={handleFormat}>
-                  <Icons.Note/>
+                  <Button onClick={handleFormat}>
+                    <Icons.Note/>
 
-                  <span>
-                    "Format"
-                  </span>
-                </Button>
+                    <span>
+                      "Format"
+                    </span>
+                  </Button>
 
-                <Spacer width={6}/>
+                  <Spacer width={6}/>
 
-                <Button onClick={handleSave}>
-                  <Icons.Play/>
+                  <Button onClick={handleSave}>
+                    <Icons.Play/>
 
-                  <span>
-                    "Compile"
-                  </span>
-                </Button>
-              </>
+                    <span>
+                      "Compile"
+                    </span>
+                  </Button>
+                </>
+              }
             } else {
               <>
                 if (!isLoggedIn) {

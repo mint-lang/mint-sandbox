@@ -188,7 +188,6 @@ store Application {
 
       decoded =
         decode object as Array(Project)
-        |> Debug.log()
 
       next { page = Page::Sandboxes(decoded) }
     } catch {
@@ -210,7 +209,6 @@ store Application {
 
       decoded =
         decode object as Array(Project)
-        |> Debug.log()
 
       next { page = Page::Home(decoded) }
     } catch {

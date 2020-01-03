@@ -11,6 +11,10 @@
     margin: 0;
   }
 
+  body, html {
+    overflow-x: hidden;
+  }
+
   * {
     box-sizing: border-box;
   }
@@ -21,6 +25,12 @@
 
   .CodeMirror {
     height: calc(100vh - 97px);
+  }
+
+  @media (max-width: 900px) {
+    .CodeMirror {
+      height: calc(50vh - 92px);
+    }
   }
 
   .CodeMirror-line {
