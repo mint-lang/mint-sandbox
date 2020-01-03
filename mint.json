@@ -1,8 +1,13 @@
 {
   "name": "mint-sandbox",
   "application": {
-    "title": "Mint Sandbox",
+    "title": "Mint Sandbox / A sandbox for Mint Applications",
+    "name": "Mint Sandbox",
     "head": "assets/head.html",
+    "icon": "assets/logo.png",
+    "display": "standalone",
+    "orientation": "portrait",
+    "theme-color": "#282c34",
     "meta": {
       "description": "A sandbox for Mint applications.",
       "viewport": "width=device-width, initial-scale=1, shrink-to-fit=no",

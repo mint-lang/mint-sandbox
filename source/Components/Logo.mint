@@ -9,21 +9,21 @@ component Logo {
         <linearGradient id="b">
           <stop
             offset="0"
-            stop-color="#3ac155"/>
+            stop-color="#5639c1"/>
 
           <stop
             offset="1"
-            stop-color="#0cb3ff"/>
+            stop-color="#f80eb3"/>
         </linearGradient>
 
         <linearGradient id="a">
           <stop
             offset="0"
-            stop-color="#3ac155"/>
+            stop-color="#5639c1"/>
 
           <stop
             offset="1"
-            stop-color="#0cb3ff"/>
+            stop-color="#f80eb3"/>
         </linearGradient>
 
         <linearGradient
