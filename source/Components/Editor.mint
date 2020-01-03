@@ -205,23 +205,41 @@ component Editor {
   fun handleMenu : Promise(Never, Void) {
     try {
       items =
-        [
-          {
-            action = (event : Html.Event) : Promise(Never, Void) { handleDelete() },
-            label = "Delete",
-            icon = <Icons.Trashcan/>
-          },
-          {
-            action = (event : Html.Event) : Promise(Never, Void) { handleFormat() },
-            label = "Format",
-            icon = <Icons.Note/>
-          },
-          {
-            action = (event : Html.Event) : Promise(Never, Void) { handleSave() },
-            label = "Compile",
-            icon = <Icons.Play/>
-          }
-        ]
+        if (isMine) {
+          [
+            {
+              action = (event : Html.Event) : Promise(Never, Void) { handleDelete() },
+              label = "Delete",
+              icon = <Icons.Trashcan/>
+            },
+            {
+              action = (event : Html.Event) : Promise(Never, Void) { handleFormat() },
+              label = "Format",
+              icon = <Icons.Note/>
+            },
+            {
+              action = (event : Html.Event) : Promise(Never, Void) { handleSave() },
+              label = "Compile",
+              icon = <Icons.Play/>
+            }
+          ]
+        } else if (isLoggedIn) {
+          [
+            {
+              action = (event : Html.Event) : Promise(Never, Void) { fork(project.id) },
+              label = "Fork",
+              icon = <Icons.Fork/>
+            }
+          ]
+        } else {
+          [
+            {
+              action = (event : Html.Event) : Promise(Never, Void) { next {  } },
+              label = "Log in to fork this sandbox.",
+              icon = <Icons.Fork/>
+            }
+          ]
+        }
 
       ActionSheet.show(items)
     }
@@ -251,46 +269,44 @@ component Editor {
           }
 
           <div::code-buttons>
-            if (isMine) {
-              if (mobile) {
-                <div::menu onClick={handleMenu}>
-                  <Icons.KebabVertical/>
-                </div>
-              } else {
-                <>
-                  <Button
-                    onClick={handleDelete}
-                    type="danger">
+            if (mobile) {
+              <div::menu onClick={handleMenu}>
+                <Icons.KebabVertical/>
+              </div>
+            } else if (isMine) {
+              <>
+                <Button
+                  onClick={handleDelete}
+                  type="danger">
 
-                    <Icons.Trashcan/>
+                  <Icons.Trashcan/>
 
-                    <span>
-                      "Delete"
-                    </span>
+                  <span>
+                    "Delete"
+                  </span>
 
-                  </Button>
+                </Button>
 
-                  <Spacer width={6}/>
+                <Spacer width={6}/>
 
-                  <Button onClick={handleFormat}>
-                    <Icons.Note/>
+                <Button onClick={handleFormat}>
+                  <Icons.Note/>
 
-                    <span>
-                      "Format"
-                    </span>
-                  </Button>
+                  <span>
+                    "Format"
+                  </span>
+                </Button>
 
-                  <Spacer width={6}/>
+                <Spacer width={6}/>
 
-                  <Button onClick={handleSave}>
-                    <Icons.Play/>
+                <Button onClick={handleSave}>
+                  <Icons.Play/>
 
-                    <span>
-                      "Compile"
-                    </span>
-                  </Button>
-                </>
-              }
+                  <span>
+                    "Compile"
+                  </span>
+                </Button>
+              </>
             } else {
               <>
                 if (!isLoggedIn) {
