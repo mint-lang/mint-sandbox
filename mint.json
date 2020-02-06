@@ -17,10 +17,9 @@
   "source-directories": [
     "source"
   ],
-  "dependencies": {
-    "mint-codemirror": {
-      "repository": "https://github.com/mint-lang/mint-codemirror",
-      "constraint": "6.0.0 <= v < 7.0.0"
-    }
+  "external": {
+    "javascripts": [
+      "asset-loader.js"
+    ]
   }
 }

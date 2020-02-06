@@ -34,12 +34,6 @@ component Preview {
   }
 
   fun render : Html {
-    <div::base as base>
-      <iframe::iframe as preview
-        onLoad={handleLoad}
-        scrolling="no"
-        tabindex="-1"
-        src={url}/>
-    </div>
+    <div::base as base/>
   }
 }
