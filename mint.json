@@ -19,7 +19,7 @@
   ],
   "external": {
     "javascripts": [
-      "asset-loader.js"
+      "assets/asset-loader.js"
     ]
   }
 }
