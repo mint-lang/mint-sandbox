@@ -177,7 +177,11 @@ component Editor {
 
   fun handleSave : Promise(Never, Void) {
     sequence {
-      save(project.id, value, title)
+      save(
+        project.id,
+        Maybe.withDefault(project.content, value),
+        Maybe.withDefault(project.title, title))
+
       next { value = Maybe::Nothing }
       `#{frame}._0.contentWindow.postMessage("*", "*")`
     }
@@ -185,7 +189,11 @@ component Editor {
 
   fun handleFormat : Promise(Never, Void) {
     sequence {
-      save(project.id, value, title)
+      save(
+        project.id,
+        Maybe.withDefault(project.content, value),
+        Maybe.withDefault(project.title, title))
+
       format(project.id)
       next { value = Maybe::Nothing }
       `#{frame}._0.contentWindow.postMessage("*", "*")`

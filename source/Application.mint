@@ -50,11 +50,7 @@ store Application {
     }
   }
 
-  fun save (
-    id : String,
-    content : Maybe(String),
-    title : Maybe(String)
-  ) : Promise(Never, Void) {
+  fun save (id : String, content : String, title : String) : Promise(Never, Void) {
     sequence {
       body =
         encode {

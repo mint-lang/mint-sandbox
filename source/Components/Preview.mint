@@ -11,7 +11,7 @@ component Preview {
     overflow: hidden;
   }
 
-  style iframe {
+  style image {
     transform-origin: 0 0;
     border: 0;
 
@@ -34,6 +34,10 @@ component Preview {
   }
 
   fun render : Html {
-    <div::base as base/>
+    <div::base>
+      <img::image
+        onLoad={handleLoad}
+        src={url}/>
+    </div>
   }
 }
