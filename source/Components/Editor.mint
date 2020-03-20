@@ -1,4 +1,5 @@
 component Editor {
+  state timestamp : Number = `+new Date()`
   state mobile : Bool = false
 
   use Provider.MediaQuery {
@@ -182,8 +183,11 @@ component Editor {
         Maybe.withDefault(project.content, value),
         Maybe.withDefault(project.title, title))
 
-      next { value = Maybe::Nothing }
-      `#{frame}._0.contentWindow.postMessage("*", "*")`
+      next
+        {
+          value = Maybe::Nothing,
+          timestamp = `+new Date()`
+        }
     }
   }
 
@@ -195,8 +199,12 @@ component Editor {
         Maybe.withDefault(project.title, title))
 
       format(project.id)
-      next { value = Maybe::Nothing }
-      `#{frame}._0.contentWindow.postMessage("*", "*")`
+
+      next
+        {
+          value = Maybe::Nothing,
+          timestamp = `+new Date()`
+        }
     }
   }
 
@@ -351,7 +359,7 @@ component Editor {
       </div>
 
       <div::preview>
-        <iframe::iframe as frame src="#{@ENDPOINT}/sandbox/#{project.id}/preview"/>
+        <iframe::iframe as frame src="#{@ENDPOINT}/sandbox/#{project.id}/preview?timestamp=#{timestamp}"/>
       </div>
     </div>
   }
