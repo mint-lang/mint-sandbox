@@ -1,6 +1,8 @@
 component Main {
   fun render : Html {
-    <Layout/>
+    <Ui.Theme.Root>
+      <Layout/>
+    </Ui.Theme.Root>
   }
 }
 

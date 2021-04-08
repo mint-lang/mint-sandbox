@@ -30,7 +30,7 @@ component UserInfo {
     display: flex;
   }
 
-  fun login : Promise(Never, Void) {
+  fun login (event : Html.Event) : Promise(Never, Void) {
     `window.location = #{@ENDPOINT} + "/auth/github"`
   }
 
@@ -48,13 +48,10 @@ component UserInfo {
         </div>
 
       UserStatus::LoggedOut =>
-        <Button onClick={login}>
-          <Icons.Github/>
-
-          <span>
-            "Log in with Github"
-          </span>
-        </Button>
+        <Ui.Button
+          onClick={login}
+          iconBefore={Ui.Icons:MARK_GITHUB}
+          label="Log in with Github"/>
 
       UserStatus::Initial => <></>
     }

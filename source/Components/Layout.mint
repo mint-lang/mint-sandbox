@@ -1,4 +1,5 @@
 component Layout {
+  connect Ui exposing { darkMode, setDarkMode }
   state mobile : Bool = false
 
   use Provider.MediaQuery {
@@ -57,126 +58,142 @@ component Layout {
     margin: 0 10px;
   }
 
-  fun handleMenu : Promise(Never, Void) {
-    try {
-      items =
-        case (userStatus) {
-          UserStatus::LoggedIn user =>
-            [
-              {
-                action = (event : Html.Event) : Promise(Never, Void) { Application.new() },
-                label = "Create Sandbox",
-                icon = <Icons.Plus/>
-              },
-              {
-                action = (event : Html.Event) : Promise(Never, Void) { Window.navigate("/my-sandboxes") },
-                label = "My Sandboxes",
-                icon = <Icons.Book/>
-              },
-              {
-                action = (event : Html.Event) : Promise(Never, Void) { logout() },
-                label = "Logout",
-                icon = <Icons.SignOut/>
-              }
-            ]
+  style layout {
+    grid-template-rows: auto 1fr;
+    min-height: 100vh;
+    display: grid;
+  }
 
-          =>
-            [
-              {
-                action = (event : Html.Event) : Promise(Never, Void) { `window.location = #{@ENDPOINT} + "/auth/github"` },
-                label = "Log in with Github",
-                icon = <Icons.Github/>
-              }
-            ]
-        }
+  style header {
+    padding: 0 1.5em;
+  }
 
-      ActionSheet.show(items)
-    }
+  style page {
+    padding: 0 1.5em;
   }
 
   fun render : Html {
-    <div::base>
-      <div::toolbar>
-        <a::brand href="/">
-          <Logo/>
-        </a>
-
+    try {
+      darkModeToggle =
         if (mobile) {
-          <div::menu onClick={handleMenu}>
-            "Menu"
-            <Icons.Grabber/>
-          </div>
+          Ui.NavItem::Item(
+            action = (event : Html.Event) { setDarkMode(!darkMode) },
+            label =
+              if (darkMode) {
+                "Light Mode"
+              } else {
+                "Dark Mode"
+              },
+            iconBefore =
+              if (darkMode) {
+                Ui.Icons:SUN
+              } else {
+                Ui.Icons:MOON
+              },
+            iconAfter = <></>)
         } else {
-          <>
-            case (userStatus) {
-              UserStatus::LoggedIn user =>
-                <>
-                  <Button
-                    type="primary"
-                    onClick={Application.new}>
-
-                    <Icons.Plus/>
-
-                    <span>
-                      "Create Sandbox"
-                    </span>
-
-                  </Button>
-
-                  <Spacer width={6}/>
-
-                  <Button href="/my-sandboxes">
-                    <Icons.Book/>
-
-                    <span>
-                      "My Sandboxes"
-                    </span>
-                  </Button>
-
-                  <Spacer width={6}/>
-
-                  <Button onClick={logout}>
-                    <Icons.SignOut/>
-
-                    <span>
-                      "Logout"
-                    </span>
-                  </Button>
-
-                  <div::toolbar-separator/>
-                </>
-
-              => <></>
-            }
-
-            <UserInfo/>
-          </>
+          Ui.NavItem::Html(<Ui.DarkModeToggle/>)
         }
+
+      items =
+        case (userStatus) {
+          UserStatus::LoggedIn =>
+            [
+              Ui.NavItem::Item(
+                action = (event : Html.Event) { Application.new() },
+                iconBefore = Ui.Icons:PLUS,
+                iconAfter = <{  }>,
+                label = "Create Sandbox"),
+              Ui.NavItem::Link(
+                href = "/my-sandboxes",
+                iconBefore = Ui.Icons:BOOK,
+                iconAfter = <{  }>,
+                target = "",
+                label = "My Sandboxes"),
+              Ui.NavItem::Item(
+                action = (event : Html.Event) { Application.logout() },
+                iconBefore = Ui.Icons:SIGN_OUT,
+                iconAfter = <{  }>,
+                label = "Logout"),
+              Ui.NavItem::Divider,
+              darkModeToggle
+            ]
+
+          UserStatus::LoggedOut =>
+            [
+              Ui.NavItem::Link(
+                href = @ENDPOINT + "/auth/github",
+                iconBefore = Ui.Icons:MARK_GITHUB,
+                iconAfter = <{  }>,
+                target = "_blank",
+                label = "Login with Github"),
+              Ui.NavItem::Divider,
+              darkModeToggle
+            ]
+
+          => []
+        }
+
+      content =
+        case (page) {
+          Page::Sandboxes sandboxes =>
+            <div::page>
+              <Ui.Content>
+                <h1>"My Sandboxes"</h1>
+
+                <p>"These are the sandboxes you created."</p>
+
+                <Sandboxes sandboxes={sandboxes}/>
+              </Ui.Content>
+            </div>
+
+          Page::Project project => <Editor project={project}/>
+
+          Page::Home recent =>
+            <>
+              /*
+              <Ui.Hero
+                              background={Ui.Backgrounds:COMPLEX_REPEATING_STRIPES_01}
+                              title=<{
+                                <Logo/>
+
+                                <Ui.Spacer height={40}/>
+                                "A playground for Mint"
+                              }>
+                              subtitle=<{ "Try out Mint in this interactive sandbox." }>
+                              actions=<{
+                                <Ui.Button
+                                  label="Create a Sandbox"
+                                  iconBefore={Ui.Icons:PLUS}/>
+                              }>/>
+              */
+              <page::page>
+                <Ui.Content>
+                  <h1>"Recently updated"</h1>
+
+                  <p>"These sandboxes have been updated recently."</p>
+
+                  <Sandboxes sandboxes={recent}/>
+                </Ui.Content>
+              </page>
+            </>
+
+          => <></>
+        }
+
+      <div::layout>
+        <div::header>
+          <Ui.Header
+            brand={
+              <a::brand href="/">
+                <Logo/>
+              </a>
+            }
+            items={items}/>
+        </div>
+
+        <{ content }>
       </div>
-
-      case (page) {
-        Page::Sandboxes sandboxes =>
-          <Page
-            title="My Sandboxes"
-            description="These are the sandboxes you created.">
-
-            <Sandboxes sandboxes={sandboxes}/>
-
-          </Page>
-
-        Page::Project project => <Editor project={project}/>
-
-        Page::Home recent =>
-          <Page
-            title="Recently updated"
-            description="These sandboxes have been updated recently.">
-
-            <Sandboxes sandboxes={recent}/>
-
-          </Page>
-
-        => <></>
-      }
-    </div>
+    }
   }
 }

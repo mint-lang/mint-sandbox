@@ -1,38 +1,6 @@
 component Sandboxes {
   property sandboxes : Array(Project) = []
 
-  style iframe {
-    border-radius: 2px 2px 0 0;
-    pointer-events: none;
-    background: white;
-    border: 0;
-  }
-
-  style sandbox {
-    border: 1px solid #1e2128;
-    background: #30353e;
-    border-radius: 2px;
-
-    grid-template-rows: 200px min-content;
-    display: grid;
-
-    text-decoration: none;
-    color: #DDD;
-  }
-
-  style info {
-    border-top: 1px solid #1e2128;
-    padding: 10px;
-  }
-
-  style info-title {
-    border-bottom: 1px dashed rgba(255,255,255,0.3);
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    font-weight: bold;
-    font-size: 16px;
-  }
-
   style info-user {
     color: rgba(255,255,255,0.8);
     font-size: 14px;
@@ -53,34 +21,38 @@ component Sandboxes {
     }
   }
 
-  style grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    grid-gap: 20px;
-    display: grid;
-  }
-
   fun render : Html {
-    <div::grid>
+    <Ui.Grid
+      width={Ui.Size::Px(280)}
+      gap={Ui.Size::Px(20)}>
+
       for (sandbox of sandboxes) {
-        <a::sandbox
+        <Ui.Card
           href="/sandboxes/#{sandbox.id}"
           key={sandbox.id}>
 
-          <Preview url="#{@ENDPOINT}/sandbox/#{sandbox.id}/screenshot"/>
+          <Ui.Card.Image
+            src="#{@ENDPOINT}/sandbox/#{sandbox.id}/screenshot"
+            objectPosition="top left"
+            height={Ui.Size::Px(155)}/>
 
-          <div::info>
-            <div::info-title>
-              <{ sandbox.title }>
-            </div>
+          <Ui.Card.Container
+            title=<{ sandbox.title }>
+            content={
+              <Ui.Container>
+                <Ui.Image
+                  src={sandbox.user.image}
+                  borderRadius="50%"
+                  height={Ui.Size::Px(16)}
+                  width={Ui.Size::Px(16)}/>
 
-            <div::info-user>
-              <img src={sandbox.user.image}/>
-              <{ sandbox.user.nickname }>
-            </div>
-          </div>
+                <{ sandbox.user.nickname }>
+              </Ui.Container>
+            }/>
 
-        </a>
+        </Ui.Card>
       }
-    </div>
+
+    </Ui.Grid>
   }
 }

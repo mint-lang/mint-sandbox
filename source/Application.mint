@@ -44,7 +44,7 @@ store Application {
       next { userStatus = UserStatus::LoggedOut }
 
       Window.navigate("/")
-      Notifications.notifyDefault("Logged out.")
+      Ui.Notifications.notifyDefault(<{ "Logged out." }>)
     } catch {
       next { userStatus = UserStatus::LoggedOut }
     }
@@ -97,8 +97,8 @@ store Application {
 
       Window.navigate("/#{decoded.id}")
 
-      Notifications.notifyDefault(
-        "Forked the sandbox successfully!")
+      Ui.Notifications.notifyDefault(
+        <{ "Forked the sandbox successfully!" }>)
     } catch {
       next { page = Page::Error }
     }
@@ -121,7 +121,7 @@ store Application {
         decode object as Project
 
       Window.navigate("/my-sandboxes")
-      Notifications.notifyDefault("Deleted successfully!")
+      Ui.Notifications.notifyDefault(<{ "Deleted successfully!" }>)
     } catch {
       next { page = Page::Error }
     }
@@ -164,7 +164,7 @@ store Application {
         decode object as Project
 
       Window.navigate("/sandboxes/#{decoded.id}")
-      Notifications.notifyDefault("Created sandbox!")
+      Ui.Notifications.notifyDefault(<{ "Created sandbox!" }>)
     } catch {
       next { page = Page::Error }
     }
@@ -226,6 +226,8 @@ store Application {
 
       decoded =
         decode object as Project
+
+      Stores.Editor.reset()
 
       next { page = Page::Project(decoded) }
     } catch {

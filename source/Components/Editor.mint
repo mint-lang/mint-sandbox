@@ -1,13 +1,13 @@
 component Editor {
-  state timestamp : Number = `+new Date()`
-  state mobile : Bool = false
+  connect Ui exposing { mobile, darkMode }
 
-  use Provider.MediaQuery {
-    query = "(max-width: 900px)",
-    changes =
-      (value : Bool) : Promise(Never, Void) {
-        next { mobile = value }
-      }
+  connect Stores.Editor exposing {
+    timestamp,
+    value,
+    title,
+    setTitle,
+    setValue,
+    reset
   }
 
   connect Application exposing {
@@ -21,20 +21,21 @@ component Editor {
     page
   }
 
-  property project : Project = {
-    updatedAt = Time.now(),
-    createdAt = Time.now(),
-    user =
-      {
-        nickname = "",
-        image = "",
-        id = 0
-      },
-    title = "",
-    id = "",
-    userId = 0,
-    content = ""
-  }
+  property project : Project =
+    {
+      updatedAt = Time.now(),
+      createdAt = Time.now(),
+      user =
+        {
+          nickname = "",
+          image = "",
+          id = 0
+        },
+      title = "",
+      id = "",
+      userId = 0,
+      content = ""
+    }
 
   use Provider.Shortcuts {
     shortcuts =
@@ -65,9 +66,6 @@ component Editor {
     isMine
   }
 
-  state value : Maybe(String) = Maybe::Nothing
-  state title : Maybe(String) = Maybe::Nothing
-
   style base {
     grid-template-columns: 1fr 1fr;
     display: grid;
@@ -82,13 +80,15 @@ component Editor {
   }
 
   style code-header {
-    border-bottom: 1px solid #1e2128;
-    background: #30353e;
+    border-bottom: 1px solid var(--border);
+    background: var(--content-color);
+    font-family: var(--font-family);
+    color: var(--content-text);
 
-    padding: 6px 10px;
-    padding-left: 20px;
+    padding: 10px;
+    padding-left: 2em;
 
-    grid-template-columns: 1fr min-content;
+    grid-template-columns: 1fr minmax(min-content, auto);
     align-items: center;
     grid-gap: 30px;
     display: grid;
@@ -100,10 +100,12 @@ component Editor {
   }
 
   style code {
-    border-right: 4px solid #1e2128;
+    background: var(--content-faded-color);
+    border-right: 4px solid var(--border);
+    color: var(--content-faded-text);
 
     @media (max-width: 900px) {
-      border-bottom: 4px solid #1e2128;
+      border-bottom: 4px solid var(--border);
       border-right: 0;
     }
   }
@@ -126,11 +128,11 @@ component Editor {
   style hint {
     font-size: 14px;
     margin-right: 10px;
-    color: rgba(255,255,255,0.6);
     font-weight: 600;
     white-space: nowrap;
     align-items: center;
     display: flex;
+    opacity: 0.75;
 
     svg {
       fill: currentColor;
@@ -142,13 +144,14 @@ component Editor {
     align-items: center;
     margin-left: auto;
     display: flex;
+
+    font-size: 14px;
   }
 
   style input {
     background: transparent;
     font-weight: 600;
     font-family: inherit;
-    color: #EEE;
     font-size: 18px;
     flex: 1;
     border: 0;
@@ -168,14 +171,6 @@ component Editor {
     }
   }
 
-  fun setValue2 (value : String) : Promise(Never, Void) {
-    next { value = Maybe::Just(value) }
-  }
-
-  fun setTitle (event : Html.Event) : Promise(Never, Void) {
-    next { title = Maybe::Just(Dom.getValue(event.target)) }
-  }
-
   fun handleSave : Promise(Never, Void) {
     sequence {
       save(
@@ -183,11 +178,7 @@ component Editor {
         Maybe.withDefault(project.content, value),
         Maybe.withDefault(project.title, title))
 
-      next
-        {
-          value = Maybe::Nothing,
-          timestamp = `+new Date()`
-        }
+      reset()
     }
   }
 
@@ -199,19 +190,36 @@ component Editor {
         Maybe.withDefault(project.title, title))
 
       format(project.id)
-
-      next
-        {
-          value = Maybe::Nothing,
-          timestamp = `+new Date()`
-        }
+      reset()
     }
   }
 
   fun handleDelete : Promise(Never, Void) {
     sequence {
-      Window.confirm("Are you sure?")
-      remove(project.id)
+      content =
+        <Ui.Modal.Content
+          title=<{ "Are you sure?" }>
+          content=<{ "Are you sure you want to delete this sandbox?" }>
+          actions=<{
+            <Ui.Button
+              onClick={(event : Html.Event) { Ui.Modal.cancel() }}
+              label="Cancel"
+              type="surface"/>
+
+            <Ui.Button
+              type="danger"
+              label="Yes"
+              onClick={
+                (event : Html.Event) {
+                  sequence {
+                    Ui.Modal.hide()
+                    remove(project.id)
+                  }
+                }
+              }/>
+          }>/>
+
+      Ui.Modal.show(content)
       next {  }
     } catch {
       next {  }
@@ -219,46 +227,7 @@ component Editor {
   }
 
   fun handleMenu : Promise(Never, Void) {
-    try {
-      items =
-        if (isMine) {
-          [
-            {
-              action = (event : Html.Event) : Promise(Never, Void) { handleDelete() },
-              label = "Delete",
-              icon = <Icons.Trashcan/>
-            },
-            {
-              action = (event : Html.Event) : Promise(Never, Void) { handleFormat() },
-              label = "Format",
-              icon = <Icons.Note/>
-            },
-            {
-              action = (event : Html.Event) : Promise(Never, Void) { handleSave() },
-              label = "Compile",
-              icon = <Icons.Play/>
-            }
-          ]
-        } else if (isLoggedIn) {
-          [
-            {
-              action = (event : Html.Event) : Promise(Never, Void) { fork(project.id) },
-              label = "Fork",
-              icon = <Icons.Fork/>
-            }
-          ]
-        } else {
-          [
-            {
-              action = (event : Html.Event) : Promise(Never, Void) { next {  } },
-              label = "Log in to fork this sandbox.",
-              icon = <Icons.Fork/>
-            }
-          ]
-        }
-
-      ActionSheet.show(items)
-    }
+    Ui.ActionSheet.show(actions)
   }
 
   get isMine : Bool {
@@ -269,12 +238,50 @@ component Editor {
     }
   }
 
+  get actions {
+    if (isMine) {
+      [
+        Ui.NavItem::Item(
+          action = (event : Html.Event) : Promise(Never, Void) { handleDelete() },
+          label = "Delete",
+          iconBefore = Ui.Icons:TRASHCAN,
+          iconAfter = <{  }>),
+        Ui.NavItem::Item(
+          action = (event : Html.Event) : Promise(Never, Void) { handleFormat() },
+          label = "Format",
+          iconBefore = Ui.Icons:FILE_CODE,
+          iconAfter = <{  }>),
+        Ui.NavItem::Item(
+          action = (event : Html.Event) : Promise(Never, Void) { handleSave() },
+          label = "Compile",
+          iconBefore = Ui.Icons:PLAY,
+          iconAfter = <{  }>)
+      ]
+    } else if (isLoggedIn) {
+      [
+        Ui.NavItem::Item(
+          action = (event : Html.Event) : Promise(Never, Void) { fork(project.id) },
+          label = "Fork",
+          iconAfter = <{  }>,
+          iconBefore = Ui.Icons:GIT_BRANCH)
+      ]
+    } else {
+      [
+        Ui.NavItem::Item(
+          action = (event : Html.Event) : Promise(Never, Void) { next {  } },
+          label = "Log in to fork this sandbox.",
+          iconBefore = Ui.Icons:GIT_BRANCH,
+          iconAfter = <{  }>)
+      ]
+    }
+  }
+
   fun render : Html {
     <div::base>
       <div::code>
         <div::code-header>
           if (isMine) {
-            <input::input
+            <Ui.Input
               onChange={setTitle}
               onBlur={handleSave}
               value={Maybe.withDefault(project.title, title)}/>
@@ -287,63 +294,45 @@ component Editor {
           <div::code-buttons>
             if (mobile) {
               <div::menu onClick={handleMenu}>
-                <Icons.KebabVertical/>
+                <Ui.Icon icon={Ui.Icons:THREE_BARS}/>
               </div>
             } else if (isMine) {
-              <>
-                <Button
-                  onClick={handleDelete}
-                  type="danger">
+              <Ui.Container gap={Ui.Size::Px(6)}>
+                for (item of actions) {
+                  case (item) {
+                    Ui.NavItem::Item action iconBefore label =>
+                      <Ui.Button
+                        onClick={action}
+                        iconBefore={iconBefore}
+                        label={label}
+                        type={
+                          if (label == "Delete") {
+                            "danger"
+                          } else {
+                            "surface"
+                          }
+                        }/>
 
-                  <Icons.Trashcan/>
-
-                  <span>
-                    "Delete"
-                  </span>
-
-                </Button>
-
-                <Spacer width={6}/>
-
-                <Button onClick={handleFormat}>
-                  <Icons.Note/>
-
-                  <span>
-                    "Format"
-                  </span>
-                </Button>
-
-                <Spacer width={6}/>
-
-                <Button onClick={handleSave}>
-                  <Icons.Play/>
-
-                  <span>
-                    "Compile"
-                  </span>
-                </Button>
-              </>
+                    => <></>
+                  }
+                }
+              </Ui.Container>
             } else {
-              <>
+              <Ui.Container gap={Ui.Size::Px(6)}>
                 if (!isLoggedIn) {
                   <span::hint>
-                    <Icons.Info/>
+                    <Ui.Icon icon={Ui.Icons:INFO}/>
                     "Log in to fork this sandbox."
                   </span>
                 }
 
-                <Button
-                  onClick={() : Promise(Never, Void) { fork(project.id) }}
-                  disabled={!isLoggedIn}>
-
-                  <Icons.Fork/>
-
-                  <span>
-                    "Fork"
-                  </span>
-
-                </Button>
-              </>
+                <Ui.Button
+                  onClick={(event : Html.Event) { fork(project.id) }}
+                  disabled={!isLoggedIn}
+                  iconBefore={Ui.Icons:REPO_FORKED}
+                  ellipsis={false}
+                  label="Fork"/>
+              </Ui.Container>
             }
           </div>
         </div>
@@ -354,8 +343,14 @@ component Editor {
           styles=[]
           readOnly={!isLoggedIn}
           mode="mint"
-          theme="one-dark"
-          onChange={setValue2}/>
+          theme={
+            if (darkMode) {
+              "darcula"
+            } else {
+              "neo"
+            }
+          }
+          onChange={setValue}/>
       </div>
 
       <div::preview>
