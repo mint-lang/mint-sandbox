@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "*"
+
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download source
+        uses: actions/checkout@v2
+
+      - name: Install Mint
+        uses: fabasoad/setup-mint-action@main
+        with:
+          version: 0.12.0
+
+      - name: Install dependencies
+        run: mint install
+
+      - name: Run tests
+        run: mint test
+
+      - name: Build
+        run: mint build
+      
+      - if: github.ref == 'refs/heads/master'
+        name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v1.1.5
+        with:
+          production-deploy: true
+          publish-dir: dist
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

@@ -1,27 +1,30 @@
 {
   "name": "mint-sandbox",
   "application": {
-    "title": "Mint Sandbox / A sandbox for Mint Applications",
     "name": "Mint Sandbox",
+    "title": "Mint Sandbox / A sandbox for Mint Applications",
     "head": "assets/head.html",
     "icon": "assets/logo.png",
-    "display": "standalone",
     "orientation": "portrait",
-    "theme-color": "#282c34",
+    "theme-color": "#e30fae",
+    "display": "standalone",
     "meta": {
-      "description": "A sandbox for Mint applications.",
       "viewport": "width=device-width, initial-scale=1, shrink-to-fit=no",
+      "description": "A sandbox for Mint applications.",
       "charset": "utf-8"
     }
   },
   "source-directories": [
-    "../mint-color/source",
-    "../mint-ui-exploration/source",
     "source"
   ],
-  "external": {
-    "javascripts": [
-      "assets/asset-loader.js"
-    ]
+  "dependencies": {
+    "mint-ui": {
+      "repository": "https://github.com/mint-lang/mint-ui",
+      "constraint": "master:1.0.0"
+    },
+    "mint-codemirror": {
+      "repository": "https://github.com/mint-lang/mint-codemirror",
+      "constraint": "b67dbc07bddbce0dacd3f0d3f7abb083e607bc99:6.2.0"
+    }
   }
 }

@@ -1,97 +1,9 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/addon/mode/simple.min.js"></script>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/theme/darcula.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/theme/neo.min.css" />
-
 <style type="text/css">
   body {
     margin: 0;
   }
 
-  body, html {
-    overflow-x: hidden;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  button::-moz-focus-inner {
-    border: 0;
-  }
-
   .CodeMirror {
-    height: calc(100vh - 97px);
-  }
-
-  @media (max-width: 900px) {
-    .CodeMirror {
-      height: calc(50vh - 92px);
-    }
-  }
-
-  .CodeMirror-line {
-    height: 20px;
-  }
-
-  .CodeMirror-hscrollbar {
-    right: 6px !important;
-  }
-
-  .CodeMirror-vscrollbar {
-    bottom: 6px !important;
-  }
-
-  .CodeMirror-scrollbar-filler {
-    background: transparent;
-    height: 6px !important;
-    width: 6px !important;
-  }
-
-  .CodeMirror-vscrollbar,
-  .CodeMirror-hscrollbar {
-    scrollbar-color: #02b046 transparent;
-    scrollbar-width: thin;
+    border-radius: 0 0 0 0.5em;
   }
 </style>
-
-<script type="text/javascript">
-  CodeMirror.defineSimpleMode("mint", {
-    start: [
-      {regex: /\/\*/, token: "comment", next: "comment"},
-      {regex: /true|false|void/, token: "atom"},
-      {regex: /"(?:[^\\]|\\.)*?(?:"|$)/, token: "string"},
-      {regex: /0x[a-f\d]+|[-+]?(?:\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/i,
-     token: "number"},
-      {regex: /(?:global|component|store|fun|get|connect|exposing|if|for|state|routes|sequence|parallel|module|decode|try|catch|property|record|next|where)\b/,
-       token: "keyword"},
-      {regex: /<\{/, mode: {spec: "mint", end: /\}>/} },
-      {regex: /(<\/)(.*)(>)/, token: [null, "tag", null]},
-      {regex: /(<)([^>\s]+)/, token: [null, "tag"], push: "attributes"},
-
-      {regex: /(style)\s([^}]+)\s\{/, token: ["keyword", null,null], push: "css"},
-      {regex: /[a-z][A-Za-z0-9]+/, token: "meta" },
-      {regex: /[A-Z][A-Za-z0-9]+(\.[[A-Za-z0-9]+])*/, token: "type"},
-    ],
-    css: [
-      {regex: /([^:]+)(\:)/, token: ["string"], push: "css_value" },
-      {regex: /}/, pop: true },
-    ],
-    css_value: [
-      {regex: /#\{/, mode: {spec: "mint", end: /\}/} },
-      {regex: /;/, pop: true },
-    ],
-    attributes: [
-      {regex: /([A-Za-z0-9]+)(=)(\[)/, token: ["type", null], mode: {spec: "mint", end: /\]/} },
-      {regex: /([A-Za-z0-9]+)(=)(\{)/, token: ["type", null], mode: {spec: "mint", end: /\}/} },
-      {regex: /([A-Za-z0-9]+)(=)("(?:[^\\]|\\.)*?(?:"|$))/, token: ["type", null, "string"] },
-      {regex: />/, pop: true },
-    ],
-    comment: [
-      {regex: /.*?\*\//, token: "comment", next: "start"},
-      {regex: /.*/, token: "comment"}
-    ]
-  })
-</script>

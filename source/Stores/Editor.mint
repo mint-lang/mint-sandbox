@@ -1,7 +1,7 @@
 store Stores.Editor {
-  state timestamp : Number = `+new Date()`
   state value : Maybe(String) = Maybe::Nothing
   state title : Maybe(String) = Maybe::Nothing
+  state timestamp : Number = `+new Date()`
 
   fun setValue (value : String) : Promise(Never, Void) {
     next { value = Maybe::Just(value) }
@@ -14,8 +14,8 @@ store Stores.Editor {
   fun reset {
     next
       {
-        value = Maybe::Nothing,
-        timestamp = `+new Date()`
+        timestamp = `+new Date()`,
+        value = Maybe::Nothing
       }
   }
 }

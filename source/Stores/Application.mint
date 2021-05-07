@@ -164,7 +164,7 @@ store Application {
         decode object as Project
 
       Window.navigate("/sandboxes/#{decoded.id}")
-      Ui.Notifications.notifyDefault(<{ "Created sandbox!" }>)
+      save(decoded.id, decoded.content, decoded.title)
     } catch {
       next { page = Page::Error }
     }

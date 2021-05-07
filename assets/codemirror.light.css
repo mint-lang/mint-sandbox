@@ -1,0 +1,62 @@
+.cm-s-light.CodeMirror {
+  background-color: #FCFCFC;
+  line-height: 1.5;
+  color: #888;
+}
+
+.cm-s-light .cm-comment {
+  opacity: 0.75;
+}
+
+.cm-s-light .cm-keyword,
+.cm-s-light .cm-property {
+  color: DodgerBlue;
+}
+
+.cm-s-light .cm-type,
+.cm-s-light .cm-atom,
+.cm-s-light .cm-number {
+  color: OrangeRed;
+}
+
+.cm-s-light .cm-node,
+.cm-s-light .cm-tag {
+  color: FireBrick;
+}
+
+.cm-s-light .cm-string {
+  color: ForestGreen;
+}
+
+.cm-s-light .cm-meta,
+.cm-s-light .cm-attribute {
+  color: #444;
+}
+
+.cm-s-light .cm-variable,
+.cm-s-light .cm-qualifier {
+  color: #047d65;
+}
+
+.cm-s-light .CodeMirror-gutters {
+  background-color: transparent;
+
+  border: none;
+  border-right: 1px solid #EEE;
+}
+
+.cm-s-light .CodeMirror-linenumber {
+  padding: 0 10px;
+  color: #CCC;
+}
+
+.cm-s-light pre.CodeMirror-line {
+  padding: 0 10px;
+}
+
+.cm-s-light .CodeMirror-cursor {
+  background: #AAA;
+  z-index: 1;
+  width: 2px;
+  border: 0;
+}

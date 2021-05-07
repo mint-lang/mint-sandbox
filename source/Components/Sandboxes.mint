@@ -1,31 +1,24 @@
 component Sandboxes {
   property sandboxes : Array(Project) = []
 
-  style info-user {
-    color: rgba(255,255,255,0.8);
-    font-size: 14px;
+  style base {
+    grid-template-columns: repeat(auto-fill, minmax(20em, 1fr));
+    grid-gap: 2em;
+    display: grid;
 
-    text-transform: uppercase;
-    font-weight: 600;
+    margin-top: 1.5em;
+  }
 
-    align-items: center;
-    display: flex;
+  style hr {
+    width: 100%;
+    margin: 0;
 
-    img {
-      border-radius: 50%;
-      background: white;
-      margin-right: 10px;
-      padding: 2px;
-      height: 16px;
-      width: 16px;
-    }
+    border: 0;
+    border-top: 1px solid var(--content-border);
   }
 
   fun render : Html {
-    <Ui.Grid
-      width={Ui.Size::Px(280)}
-      gap={Ui.Size::Px(20)}>
-
+    <div::base>
       for (sandbox of sandboxes) {
         <Ui.Card
           href="/sandboxes/#{sandbox.id}"
@@ -34,17 +27,18 @@ component Sandboxes {
           <Ui.Card.Image
             src="#{@ENDPOINT}/sandbox/#{sandbox.id}/screenshot"
             objectPosition="top left"
-            height={Ui.Size::Px(155)}/>
+            height={Ui.Size::Em(10)}/>
+
+          <hr::hr/>
 
           <Ui.Card.Container
             title=<{ sandbox.title }>
             content={
-              <Ui.Container>
+              <Ui.Container justify="start">
                 <Ui.Image
-                  src={sandbox.user.image}
-                  borderRadius="50%"
-                  height={Ui.Size::Px(16)}
-                  width={Ui.Size::Px(16)}/>
+                  height={Ui.Size::Em(1.5)}
+                  width={Ui.Size::Em(1.5)}
+                  src={sandbox.user.image}/>
 
                 <{ sandbox.user.nickname }>
               </Ui.Container>
@@ -52,7 +46,6 @@ component Sandboxes {
 
         </Ui.Card>
       }
-
-    </Ui.Grid>
+    </div>
   }
 }
