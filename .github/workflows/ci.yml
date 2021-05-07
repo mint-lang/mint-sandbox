@@ -32,8 +32,8 @@ jobs:
         run: mint test
 
       - name: Build
-        run: mint build
-      
+        run: mint build -e .env.production
+
       - if: github.ref == 'refs/heads/master'
         name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v1.1.5
