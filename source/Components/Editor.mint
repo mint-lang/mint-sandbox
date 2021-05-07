@@ -70,15 +70,20 @@ component Editor {
   style base {
     box-shadow: 0 0 0.625em var(--shadow-color);
     background-color: var(--content-color);
-    min-height: calc(100vh - 8em);
     border-radius: 0.5em;
     display: grid;
 
     if (mobile) {
-      grid-template-columns: 1fr;
       grid-template-rows: 90vh 90vh;
+      grid-template-columns: 1fr;
+      height: auto;
     } else {
       grid-template-columns: 1fr 1fr;
+      height: calc(100vh - 8em);
+    }
+
+    * {
+      min-height: 0;
     }
   }
 
