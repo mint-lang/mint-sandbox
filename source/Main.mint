@@ -13,7 +13,7 @@ component Main {
 
   get content : Html {
     case (page) {
-      Page::Sandboxes sandboxes =>
+      Page::Sandboxes(sandboxes) =>
         if (Array.isEmpty(sandboxes)) {
           <Page fill={true}>
             <Ui.IllustratedMessage
@@ -47,9 +47,9 @@ component Main {
           </Page>
         }
 
-      Page::Project project => <Editor project={project}/>
+      Page::Project(project) => <Editor project={project}/>
 
-      Page::Home recent =>
+      Page::Home(recent) =>
         <Page>
           <h1>"Recently updated"</h1>
 

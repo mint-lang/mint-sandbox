@@ -215,9 +215,9 @@ component Editor {
           }>/>
 
       Ui.Modal.show(content)
-      next {  }
+      next { }
     } catch {
-      next {  }
+      next { }
     }
   }
 
@@ -229,7 +229,7 @@ component Editor {
   /* Returns wether or not the sandbox belongs to the current user. */
   get isMine : Bool {
     case (userStatus) {
-      UserStatus::LoggedIn user => user.id == project.userId
+      UserStatus::LoggedIn(user) => user.id == project.userId
       UserStatus::LoggedOut => false
       UserStatus::Initial => false
     }
@@ -301,7 +301,7 @@ component Editor {
               <>
                 for (item of actions) {
                   case (item) {
-                    Ui.NavItem::Item action iconBefore label =>
+                    Ui.NavItem::Item(action, iconBefore, label) =>
                       <Ui.Button
                         iconBefore={iconBefore}
                         onClick={action}
