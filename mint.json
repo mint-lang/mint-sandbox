@@ -20,7 +20,7 @@
   "dependencies": {
     "mint-ui": {
       "repository": "https://github.com/mint-lang/mint-ui",
-      "constraint": "3.0.0 <= v < 4.0.0"
+      "constraint": "4.0.0 <= v < 5.0.0"
     },
     "mint-codemirror": {
       "repository": "https://github.com/mint-lang/mint-codemirror",
