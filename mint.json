@@ -24,7 +24,7 @@
     },
     "mint-codemirror": {
       "repository": "https://github.com/mint-lang/mint-codemirror",
-      "constraint": "b67dbc07bddbce0dacd3f0d3f7abb083e607bc99:6.2.0"
+      "constraint": "7.0.0 <= v < 8.0.0"
     }
   }
 }
