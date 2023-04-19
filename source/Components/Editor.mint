@@ -23,28 +23,28 @@ component Editor {
 
   property project : Project =
     {
-      updatedAt = Time.now(),
-      createdAt = Time.now(),
-      content = "",
-      title = "",
-      userId = 0,
-      id = "",
-      user =
+      updatedAt: Time.now(),
+      createdAt: Time.now(),
+      content: "",
+      title: "",
+      userId: 0,
+      id: "",
+      user:
         {
-          nickname = "",
-          image = "",
-          id = 0
+          nickname: "",
+          image: "",
+          id: 0
         }
     }
 
   use Provider.Shortcuts {
-    shortcuts =
+    shortcuts:
       [
         {
-          condition = () : Bool { true },
-          action = handleFormat,
-          bypassFocused = true,
-          shortcut =
+          condition: () : Bool { true },
+          action: handleFormat,
+          bypassFocused: true,
+          shortcut:
             [
               Html.Event:SHIFT,
               Html.Event:CTRL,
@@ -52,10 +52,10 @@ component Editor {
             ]
         },
         {
-          action = () { handleSave("Saved!") },
-          condition = () : Bool { true },
-          bypassFocused = true,
-          shortcut =
+          action: () { handleSave("Saved!") },
+          condition: () : Bool { true },
+          bypassFocused: true,
+          shortcut:
             [
               Html.Event:CTRL,
               Html.Event:S
@@ -162,67 +162,57 @@ component Editor {
   }
 
   /* Handles saving of the sandbox with a notification. */
-  fun handleSave (notification : String) : Promise(Never, Void) {
-    sequence {
-      save(
-        project.id,
-        Maybe.withDefault(project.content, value),
-        Maybe.withDefault(project.title, title))
+  fun handleSave (notification : String) : Promise(Void) {
+    await save(
+      project.id,
+      Maybe.withDefault(value, project.content),
+      Maybe.withDefault(title, project.title))
 
-      reset()
-      Ui.Notifications.notifyDefault(<{ notification }>)
-    }
+    await reset()
+    Ui.Notifications.notifyDefault(<{ notification }>)
   }
 
   /* Handles the formatting of the sandbox. */
-  fun handleFormat : Promise(Never, Void) {
-    sequence {
-      save(
-        project.id,
-        Maybe.withDefault(project.content, value),
-        Maybe.withDefault(project.title, title))
+  fun handleFormat : Promise(Void) {
+    await save(
+      project.id,
+      Maybe.withDefault(value, project.content),
+      Maybe.withDefault(title, project.title))
 
-      format(project.id)
-      reset()
-      Ui.Notifications.notifyDefault(<{ "Formatted!" }>)
-    }
+    await format(project.id)
+    await reset()
+    Ui.Notifications.notifyDefault(<{ "Formatted!" }>)
   }
 
   /* Handles the deletion of the sandbox. */
-  fun handleDelete : Promise(Never, Void) {
-    sequence {
-      content =
-        <Ui.Modal.Content
-          content=<{ "Are you sure you want to delete this sandbox?" }>
-          title=<{ "Are you sure?" }>
-          actions=<{
-            <Ui.Button
-              onClick={(event : Html.Event) { Ui.Modal.cancel() }}
-              label="Cancel"
-              type="faded"/>
+  fun handleDelete : Promise(Void) {
+    let content =
+      <Ui.Modal.Content
+        content=<{ "Are you sure you want to delete this sandbox?" }>
+        title=<{ "Are you sure?" }>
+        actions=<{
+          <Ui.Button
+            onClick={(event : Html.Event) { Ui.Modal.cancel() }}
+            label="Cancel"
+            type="faded"/>
 
-            <Ui.Button
-              type="danger"
-              label="Yes"
-              onClick={
-                (event : Html.Event) {
-                  sequence {
-                    Ui.Modal.hide()
-                    remove(project.id)
-                  }
-                }
-              }/>
-          }>/>
+          <Ui.Button
+            type="danger"
+            label="Yes"
+            onClick={
+              (event : Html.Event) {
+                await Ui.Modal.hide()
+                await remove(project.id)
+              }
+            }/>
+        }>/>
 
-      Ui.Modal.show(content)
-      next { }
-    } catch {
-      next { }
-    }
+    await Ui.Modal.show(content)
+    void
   }
 
   /* Handles opening the mobile menu. */
-  fun handleMenu (event : Html.Event) : Promise(Never, Void) {
+  fun handleMenu (event : Html.Event) : Promise(Void) {
     Ui.ActionSheet.show(actions)
   }
 
@@ -240,36 +230,36 @@ component Editor {
     if (isMine) {
       [
         Ui.NavItem::Item(
-          action = (event : Html.Event) { handleDelete() },
-          iconBefore = Ui.Icons:TRASHCAN,
-          iconAfter = <{  }>,
-          label = "Delete"),
+          action: (event : Html.Event) { handleDelete() },
+          iconBefore: Ui.Icons:TRASHCAN,
+          iconAfter: <{  }>,
+          label: "Delete"),
         Ui.NavItem::Item(
-          action = (event : Html.Event) { handleFormat() },
-          iconBefore = Ui.Icons:FILE_CODE,
-          iconAfter = <{  }>,
-          label = "Format"),
+          action: (event : Html.Event) { handleFormat() },
+          iconBefore: Ui.Icons:FILE_CODE,
+          iconAfter: <{  }>,
+          label: "Format"),
         Ui.NavItem::Item(
-          action = (event : Html.Event) { handleSave("Compiled!") },
-          iconBefore = Ui.Icons:PLAY,
-          iconAfter = <{  }>,
-          label = "Compile")
+          action: (event : Html.Event) { handleSave("Compiled!") },
+          iconBefore: Ui.Icons:PLAY,
+          iconAfter: <{  }>,
+          label: "Compile")
       ]
     } else if (isLoggedIn) {
       [
         Ui.NavItem::Item(
-          action = (event : Html.Event) { fork(project.id) },
-          iconBefore = Ui.Icons:GIT_BRANCH,
-          iconAfter = <{  }>,
-          label = "Fork")
+          action: (event : Html.Event) { fork(project.id) },
+          iconBefore: Ui.Icons:GIT_BRANCH,
+          iconAfter: <{  }>,
+          label: "Fork")
       ]
     } else {
       [
         Ui.NavItem::Item(
-          label = "Log in to fork this sandbox.",
-          iconBefore = Ui.Icons:GIT_BRANCH,
-          action = Promise.never1,
-          iconAfter = <{  }>)
+          label: "Log in to fork this sandbox.",
+          iconBefore: Ui.Icons:GIT_BRANCH,
+          action: Promise.never1,
+          iconAfter: <{  }>)
       ]
     }
   }
@@ -281,12 +271,12 @@ component Editor {
         <div::toolbar>
           if (isMine) {
             <Ui.Input
-              value={Maybe.withDefault(project.title, title)}
+              value={Maybe.withDefault(title, project.title)}
               onBlur={() { handleSave("Name updated!") }}
               onChange={setTitle}/>
           } else {
             <div::title>
-              <{ Maybe.withDefault(project.title, title) }>
+              <{ Maybe.withDefault(title, project.title) }>
             </div>
           }
 
@@ -339,7 +329,7 @@ component Editor {
         </div>
 
         <CodeMirror
-          value={Maybe.withDefault(project.content, value)}
+          value={Maybe.withDefault(value, project.content)}
           readOnly={!isLoggedIn}
           onChange={setValue}
           mode="mint"

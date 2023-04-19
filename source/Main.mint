@@ -6,8 +6,8 @@ component Main {
       [
         Ui:DEFAULT_TOKENS,
         [
-          Ui.Token::Simple(name = "primary-hover", value = "#d91ca9"),
-          Ui.Token::Simple(name = "primary-color", value = "#e30fae")
+          Ui.Token::Simple(name: "primary-hover", value: "#d91ca9"),
+          Ui.Token::Simple(name: "primary-color", value: "#e30fae")
         ]
       ])
 
@@ -115,24 +115,19 @@ record Project {
 
 routes {
   / {
-    sequence {
-      Application.initialize()
-      Application.recent()
-    }
+    await Application.initialize()
+    Application.recent()
   }
 
   /my-sandboxes {
-    sequence {
-      Application.initialize()
-      Application.mySandboxes()
-    }
+    await Application.initialize()
+    Application.mySandboxes()
   }
 
   /sandboxes/:id (id : String) {
-    sequence {
-      Application.initialize()
-      Application.load(id)
-    }
+    await Application.initialize()
+    await Stores.Editor.reset()
+    Application.load(id)
   }
 
   * {

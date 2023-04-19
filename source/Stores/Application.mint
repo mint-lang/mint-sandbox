@@ -2,236 +2,204 @@ store Application {
   state userStatus : UserStatus = UserStatus::Initial
   state page : Page = Page::Initial
 
-  fun setPage (page : Page) : Promise(Never, Void) {
-    next { page = page }
+  fun setPage (page : Page) : Promise(Void) {
+    next { page: page }
   }
 
   get isLoggedIn : Bool {
     case (userStatus) {
-      UserStatus::LoggedIn => true
+     UserStatus::LoggedIn => true
       => false
     }
   }
 
-  fun initialize : Promise(Never, Void) {
-    sequence {
-      response =
-        "#{@ENDPOINT}/sandbox/user"
-        |> Http.get()
-        |> Http.withCredentials(true)
-        |> Http.send()
+  fun send (
+    raw : Http.Request,
+    decoder : Function(Object, Result(Object.Error, a))
+  ) : Promise(Result(Void, a)) {
+    case (await Http.send(raw)) {
+      Result::Err => Result::Err(void)
 
-      object =
-        Json.parse(response.body)
-        |> Maybe.toResult("")
+      Result::Ok(response) =>
+        case (Json.parse(response.body)) {
+          Result::Err =>
+            Result::Err(void)
 
-      decoded =
-        decode object as User
-
-      next { userStatus = UserStatus::LoggedIn(decoded) }
-    } catch {
-      next { userStatus = UserStatus::LoggedOut }
+          Result::Ok(object) =>
+            case (decoder(object)) {
+              Result::Ok(value) => Result::Ok(value)
+              Result::Err => Result::Err(void)
+            }
+        }
     }
   }
 
-  fun logout : Promise(Never, Void) {
-    sequence {
+  fun initialize : Promise(Void) {
+    let request =
+      await "#{@ENDPOINT}/sandbox/user"
+      |> Http.get()
+      |> Http.withCredentials(true)
+
+    let userStatus =
+      await case (await send(request, decode as User)) {
+        Result::Ok(user) => UserStatus::LoggedIn(user)
+        Result::Err => UserStatus::LoggedOut
+      }
+
+    next { userStatus: userStatus }
+  }
+
+  fun logout : Promise(Void) {
+    let request =
       "#{@ENDPOINT}/sandbox/logout"
       |> Http.get()
       |> Http.withCredentials(true)
       |> Http.send()
 
-      next { userStatus = UserStatus::LoggedOut }
+    await case (await request) {
+      Result::Err => Promise.never()
 
-      Window.navigate("/")
-      Ui.Notifications.notifyDefault(<{ "Logged out." }>)
-    } catch {
-      next { userStatus = UserStatus::LoggedOut }
-    }
-  }
-
-  fun save (id : String, content : String, title : String) : Promise(Never, Void) {
-    sequence {
-      body =
-        encode {
-          content = content,
-          title = title
+      Result::Ok =>
+        {
+          Window.navigate("/")
+          Ui.Notifications.notifyDefault(<{ "Logged out." }>)
         }
+    }
 
-      response =
-        "#{@ENDPOINT}/sandbox/#{id}"
-        |> Http.put()
-        |> Http.header("Content-Type", "application/json")
-        |> Http.jsonBody(body)
-        |> Http.withCredentials(true)
-        |> Http.send()
+    next { userStatus: UserStatus::LoggedOut }
+  }
 
-      object =
-        Json.parse(response.body)
-        |> Maybe.toResult("")
+  fun save (id : String, content : String, title : String) : Promise(Void) {
+    let body =
+      encode {
+        content: content,
+        title: title
+      }
 
-      decoded =
-        decode object as Project
+    let request =
+      "#{@ENDPOINT}/sandbox/#{id}"
+      |> Http.put()
+      |> Http.header("Content-Type", "application/json")
+      |> Http.jsonBody(body)
+      |> Http.withCredentials(true)
 
-      next { page = Page::Project(decoded) }
-    } catch {
-      next { page = Page::Error }
+    let page =
+      await case (await send(request, decode as Project)) {
+        Result::Ok(project) => Page::Project(project)
+        Result::Err => Page::Error
+      }
+
+    next { page: page }
+  }
+
+  fun fork (id : String) : Promise(Void) {
+    let request =
+      "#{@ENDPOINT}/sandbox/#{id}/fork"
+      |> Http.post()
+      |> Http.header("Content-Type", "application/json")
+      |> Http.withCredentials(true)
+
+    case (await send(request, decode as Project)) {
+      Result::Err =>
+        next { page: Page::Error }
+
+      Result::Ok(project) =>
+        {
+          Window.navigate("/#{project.id}")
+
+          Ui.Notifications.notifyDefault(
+            <{ "Forked the sandbox successfully!" }>)
+        }
     }
   }
 
-  fun fork (id : String) : Promise(Never, Void) {
-    sequence {
-      response =
-        "#{@ENDPOINT}/sandbox/#{id}/fork"
-        |> Http.post()
-        |> Http.header("Content-Type", "application/json")
-        |> Http.withCredentials(true)
-        |> Http.send()
+  fun remove (id : String) : Promise(Void) {
+    let request =
+      "#{@ENDPOINT}/sandbox/#{id}"
+      |> Http.delete()
+      |> Http.header("Content-Type", "application/json")
+      |> Http.withCredentials(true)
 
-      object =
-        Json.parse(response.body)
-        |> Maybe.toResult("")
+    case (await send(request, decode as Project)) {
+      Result::Err =>
+        next { page: Page::Error }
 
-      decoded =
-        decode object as Project
-
-      Window.navigate("/#{decoded.id}")
-
-      Ui.Notifications.notifyDefault(
-        <{ "Forked the sandbox successfully!" }>)
-    } catch {
-      next { page = Page::Error }
+      Result::Ok =>
+        {
+          Window.navigate("/my-sandboxes")
+          Ui.Notifications.notifyDefault(<{ "Deleted successfully!" }>)
+        }
     }
   }
 
-  fun remove (id : String) : Promise(Never, Void) {
-    sequence {
-      response =
-        "#{@ENDPOINT}/sandbox/#{id}"
-        |> Http.delete()
-        |> Http.header("Content-Type", "application/json")
-        |> Http.withCredentials(true)
-        |> Http.send()
+  fun format (id : String) : Promise(Void) {
+    let request =
+      "#{@ENDPOINT}/sandbox/#{id}/format"
+      |> Http.post()
+      |> Http.withCredentials(true)
 
-      object =
-        Json.parse(response.body)
-        |> Maybe.toResult("")
+    let page =
+      await case (await send(request, decode as Project)) {
+        Result::Ok(project) => Page::Project(project)
+        Result::Err => Page::Error
+      }
 
-      decoded =
-        decode object as Project
+    next { page: page }
+  }
 
-      Window.navigate("/my-sandboxes")
-      Ui.Notifications.notifyDefault(<{ "Deleted successfully!" }>)
-    } catch {
-      next { page = Page::Error }
+  fun new : Promise(Void) {
+    let request =
+      "#{@ENDPOINT}/sandbox"
+      |> Http.post()
+      |> Http.withCredentials(true)
+
+    case (await send(request, decode as Project)) {
+      Result::Err => next { page: Page::Error }
+
+      Result::Ok(project) =>
+        {
+          Window.navigate("/sandboxes/#{project.id}")
+          save(project.id, project.content, project.title)
+        }
     }
   }
 
-  fun format (id : String) : Promise(Never, Void) {
-    sequence {
-      response =
-        "#{@ENDPOINT}/sandbox/#{id}/format"
-        |> Http.post()
-        |> Http.withCredentials(true)
-        |> Http.send()
+  fun mySandboxes : Promise(Void) {
+    let request =
+      "#{@ENDPOINT}/sandbox"
+      |> Http.get()
+      |> Http.withCredentials(true)
 
-      object =
-        Json.parse(response.body)
-        |> Maybe.toResult("")
-
-      decoded =
-        decode object as Project
-
-      next { page = Page::Project(decoded) }
-    } catch {
-      next { page = Page::Error }
+    case (await send(request, decode as Array(Project))) {
+      Result::Ok(projects) => next { page: Page::Sandboxes(projects) }
+      Result::Err => next { page: Page::Error }
     }
   }
 
-  fun new : Promise(Never, Void) {
-    sequence {
-      response =
-        "#{@ENDPOINT}/sandbox"
-        |> Http.post()
-        |> Http.withCredentials(true)
-        |> Http.send()
+  fun recent : Promise(Void) {
+    let request =
+      "#{@ENDPOINT}/sandbox/recent"
+      |> Http.get()
+      |> Http.withCredentials(true)
 
-      object =
-        Json.parse(response.body)
-        |> Maybe.toResult("")
-
-      decoded =
-        decode object as Project
-
-      Window.navigate("/sandboxes/#{decoded.id}")
-      save(decoded.id, decoded.content, decoded.title)
-    } catch {
-      next { page = Page::Error }
+    case (await send(request, decode as Array(Project))) {
+      Result::Ok(projects) => next { page: Page::Home(projects) }
+      Result::Err => next { page: Page::Error }
     }
   }
 
-  fun mySandboxes : Promise(Never, Void) {
-    sequence {
-      response =
-        "#{@ENDPOINT}/sandbox"
-        |> Http.get()
-        |> Http.withCredentials(true)
-        |> Http.send()
+  fun load (id : String) : Promise(Void) {
+    let request =
+      "#{@ENDPOINT}/sandbox/#{id}"
+      |> Http.get()
+      |> Http.withCredentials(true)
 
-      object =
-        Json.parse(response.body)
-        |> Maybe.toResult("")
+    let page =
+      await case (await send(request, decode as Project)) {
+        Result::Ok(project) => Page::Project(project)
+        Result::Err => Page::Error
+      }
 
-      decoded =
-        decode object as Array(Project)
-
-      next { page = Page::Sandboxes(decoded) }
-    } catch {
-      next { page = Page::Error }
-    }
-  }
-
-  fun recent : Promise(Never, Void) {
-    sequence {
-      response =
-        "#{@ENDPOINT}/sandbox/recent"
-        |> Http.get()
-        |> Http.withCredentials(true)
-        |> Http.send()
-
-      object =
-        Json.parse(response.body)
-        |> Maybe.toResult("")
-
-      decoded =
-        decode object as Array(Project)
-
-      next { page = Page::Home(decoded) }
-    } catch {
-      next { page = Page::Error }
-    }
-  }
-
-  fun load (id : String) : Promise(Never, Void) {
-    sequence {
-      response =
-        "#{@ENDPOINT}/sandbox/#{id}"
-        |> Http.get()
-        |> Http.withCredentials(true)
-        |> Http.send()
-
-      object =
-        Json.parse(response.body)
-        |> Maybe.toResult("")
-
-      decoded =
-        decode object as Project
-
-      Stores.Editor.reset()
-
-      next { page = Page::Project(decoded) }
-    } catch {
-      next { page = Page::Error }
-    }
+    next { page: page }
   }
 }
