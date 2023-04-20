@@ -1,4 +1,5 @@
 store Stores.Editor {
+  state mintVersion : Maybe(String) = Maybe::Nothing
   state value : Maybe(String) = Maybe::Nothing
   state title : Maybe(String) = Maybe::Nothing
   state timestamp : Number = `+new Date()`
@@ -9,6 +10,10 @@ store Stores.Editor {
 
   fun setTitle (value : String) : Promise(Void) {
     next { title: Maybe::Just(value) }
+  }
+
+  fun setMintVersion (value : String) : Promise(Void) {
+    next { mintVersion: Maybe::Just(value) }
   }
 
   fun reset {

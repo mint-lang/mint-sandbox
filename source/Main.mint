@@ -104,6 +104,7 @@ record User {
 }
 
 record Project {
+  mintVersion : String using "mint_version",
   createdAt : Time using "created_at",
   updatedAt : Time using "updated_at",
   userId : Number using "user_id",

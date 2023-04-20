@@ -3,8 +3,10 @@ component Editor {
 
   connect Stores.Editor exposing {
     timestamp,
+    setMintVersion,
     setTitle,
     setValue,
+    mintVersion,
     value,
     title,
     reset
@@ -25,6 +27,7 @@ component Editor {
     {
       updatedAt: Time.now(),
       createdAt: Time.now(),
+      mintVersion: "",
       content: "",
       title: "",
       userId: 0,
@@ -161,10 +164,17 @@ component Editor {
     flex: 1;
   }
 
+  style row {
+    grid-auto-flow: column;
+    display: grid;
+    grid-gap: 6px;
+  }
+
   /* Handles saving of the sandbox with a notification. */
   fun handleSave (notification : String) : Promise(Void) {
     await save(
       project.id,
+      Maybe.withDefault(mintVersion, project.mintVersion),
       Maybe.withDefault(value, project.content),
       Maybe.withDefault(title, project.title))
 
@@ -176,6 +186,7 @@ component Editor {
   fun handleFormat : Promise(Void) {
     await save(
       project.id,
+      Maybe.withDefault(mintVersion, project.mintVersion),
       Maybe.withDefault(value, project.content),
       Maybe.withDefault(title, project.title))
 
@@ -280,7 +291,7 @@ component Editor {
             </div>
           }
 
-          <Ui.Row gap={Ui.Size::Px(6)}>
+          <div::row>
             if (mobile) {
               <Ui.Icon
                 icon={Ui.Icons:THREE_BARS}
@@ -307,6 +318,25 @@ component Editor {
                     => <></>
                   }
                 }
+
+                <Ui.Native.Select
+                  value={project.mintVersion}
+                  onChange={
+                    (value : String) {
+                      await setMintVersion(value)
+                      handleSave("Version updated!")
+                    }
+                  }
+                  items=[
+                    Ui.ListItem::Item(
+                      content: <{ "0.16.1" }>,
+                      matchString: "0.16.1",
+                      key: "0.16.1"),
+                    Ui.ListItem::Item(
+                      content: <{ "0.17.0" }>,
+                      matchString: "0.17.0",
+                      key: "0.17.0")
+                  ]/>
               </>
             } else {
               <>
@@ -325,7 +355,7 @@ component Editor {
                   label="Fork"/>
               </>
             }
-          </Ui.Row>
+          </div>
         </div>
 
         <CodeMirror

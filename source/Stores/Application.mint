@@ -69,9 +69,10 @@ store Application {
     next { userStatus: UserStatus::LoggedOut }
   }
 
-  fun save (id : String, content : String, title : String) : Promise(Void) {
+  fun save (id : String, mintVersion : String, content : String, title : String) : Promise(Void) {
     let body =
       encode {
+        mintVersion: mintVersion,
         content: content,
         title: title
       }
@@ -159,7 +160,7 @@ store Application {
       Result::Ok(project) =>
         {
           Window.navigate("/sandboxes/#{project.id}")
-          save(project.id, project.content, project.title)
+          save(project.id, project.mintVersion, project.content, project.title)
         }
     }
   }
