@@ -33,7 +33,7 @@ store NavItems {
     Ui.NavItem::Link(
       href: @ENDPOINT + "/auth/github",
       iconBefore: Ui.Icons:MARK_GITHUB,
-      label: "Login with Github",
+      label: "Login with GitHub",
       iconAfter: <{  }>,
       target: "")
 
