@@ -76,7 +76,7 @@ component Editor {
     border-radius: 0.5em;
     display: grid;
 
-    if (mobile) {
+    if mobile {
       grid-template-rows: 90vh 90vh;
       grid-template-columns: 1fr;
       height: auto;
@@ -111,7 +111,7 @@ component Editor {
     grid-template-rows: auto 1fr;
     display: grid;
 
-    if (mobile) {
+    if mobile {
       border-bottom: 1px solid var(--content-border);
       border-right: 0;
     }
@@ -174,9 +174,9 @@ component Editor {
   fun handleSave (notification : String) : Promise(Void) {
     await save(
       project.id,
-      Maybe.withDefault(mintVersion, project.mintVersion),
-      Maybe.withDefault(value, project.content),
-      Maybe.withDefault(title, project.title))
+      mintVersion or project.mintVersion,
+      value or project.content,
+      title or project.title)
 
     await reset()
     Ui.Notifications.notifyDefault(<{ notification }>)
@@ -186,9 +186,9 @@ component Editor {
   fun handleFormat : Promise(Void) {
     await save(
       project.id,
-      Maybe.withDefault(mintVersion, project.mintVersion),
-      Maybe.withDefault(value, project.content),
-      Maybe.withDefault(title, project.title))
+      mintVersion or project.mintVersion,
+      value or project.content,
+      title or project.title)
 
     await format(project.id)
     await reset()
@@ -229,7 +229,7 @@ component Editor {
 
   /* Returns wether or not the sandbox belongs to the current user. */
   get isMine : Bool {
-    case (userStatus) {
+    case userStatus {
       UserStatus::LoggedIn(user) => user.id == project.userId
       UserStatus::LoggedOut => false
       UserStatus::Initial => false
@@ -238,7 +238,7 @@ component Editor {
 
   /* Returns the actions for the buttons and action sheet. */
   get actions : Array(Ui.NavItem) {
-    if (isMine) {
+    if isMine {
       [
         Ui.NavItem::Item(
           action: (event : Html.Event) { handleDelete() },
@@ -256,7 +256,7 @@ component Editor {
           iconAfter: <{  }>,
           label: "Compile")
       ]
-    } else if (isLoggedIn) {
+    } else if isLoggedIn {
       [
         Ui.NavItem::Item(
           action: (event : Html.Event) { fork(project.id) },
@@ -280,7 +280,7 @@ component Editor {
     <div::base>
       <div::code>
         <div::toolbar>
-          if (isMine) {
+          if isMine {
             <Ui.Input
               value={Maybe.withDefault(title, project.title)}
               onBlur={() { handleSave("Name updated!") }}
@@ -292,23 +292,23 @@ component Editor {
           }
 
           <div::row>
-            if (mobile) {
+            if mobile {
               <Ui.Icon
                 icon={Ui.Icons:THREE_BARS}
                 size={Ui.Size::Em(2)}
                 onClick={handleMenu}
                 interactive={true}/>
-            } else if (isMine) {
+            } else if isMine {
               <>
-                for (item of actions) {
-                  case (item) {
+                for item of actions {
+                  case item {
                     Ui.NavItem::Item(action, iconBefore, label) =>
                       <Ui.Button
                         iconBefore={iconBefore}
                         onClick={action}
                         label={label}
                         type={
-                          if (label == "Delete") {
+                          if label == "Delete" {
                             "danger"
                           } else {
                             "faded"
@@ -340,7 +340,7 @@ component Editor {
               </>
             } else {
               <>
-                if (!isLoggedIn) {
+                if !isLoggedIn {
                   <span::hint>
                     <Ui.Icon icon={Ui.Icons:INFO}/>
                     "Log in to fork this sandbox."
@@ -374,7 +374,7 @@ component Editor {
             @asset(../../assets/codemirror.dark.css)
           ]
           theme={
-            if (darkMode) {
+            if darkMode {
               "dark"
             } else {
               "light"

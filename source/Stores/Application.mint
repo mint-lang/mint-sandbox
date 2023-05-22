@@ -7,8 +7,8 @@ store Application {
   }
 
   get isLoggedIn : Bool {
-    case (userStatus) {
-     UserStatus::LoggedIn => true
+    case userStatus {
+      UserStatus::LoggedIn => true
       => false
     }
   }
@@ -17,21 +17,16 @@ store Application {
     raw : Http.Request,
     decoder : Function(Object, Result(Object.Error, a))
   ) : Promise(Result(Void, a)) {
-    case (await Http.send(raw)) {
-      Result::Err => Result::Err(void)
+    let Result::Ok(response) =
+      await Http.send(raw) or return Result::Err(void)
 
-      Result::Ok(response) =>
-        case (Json.parse(response.body)) {
-          Result::Err =>
-            Result::Err(void)
+    let Http.ResponseBody::JSON(object) =
+      response.body or return Result::Err(void)
 
-          Result::Ok(object) =>
-            case (decoder(object)) {
-              Result::Ok(value) => Result::Ok(value)
-              Result::Err => Result::Err(void)
-            }
-        }
-    }
+    let Result::Ok(value) =
+      decoder(object) or return Result::Err(void)
+
+    Result::Ok(value)
   }
 
   fun initialize : Promise(Void) {
@@ -41,7 +36,7 @@ store Application {
       |> Http.withCredentials(true)
 
     let userStatus =
-      await case (await send(request, decode as User)) {
+      await case await send(request, decode as User) {
         Result::Ok(user) => UserStatus::LoggedIn(user)
         Result::Err => UserStatus::LoggedOut
       }
@@ -56,20 +51,21 @@ store Application {
       |> Http.withCredentials(true)
       |> Http.send()
 
-    await case (await request) {
-      Result::Err => Promise.never()
+    let Result::Ok(value) =
+      await request or return next { }
 
-      Result::Ok =>
-        {
-          Window.navigate("/")
-          Ui.Notifications.notifyDefault(<{ "Logged out." }>)
-        }
-    }
+    Window.navigate("/")
+    Ui.Notifications.notifyDefault(<{ "Logged out." }>)
 
     next { userStatus: UserStatus::LoggedOut }
   }
 
-  fun save (id : String, mintVersion : String, content : String, title : String) : Promise(Void) {
+  fun save (
+    id : String,
+    mintVersion : String,
+    content : String,
+    title : String
+  ) : Promise(Void) {
     let body =
       encode {
         mintVersion: mintVersion,
@@ -85,7 +81,7 @@ store Application {
       |> Http.withCredentials(true)
 
     let page =
-      await case (await send(request, decode as Project)) {
+      await case await send(request, decode as Project) {
         Result::Ok(project) => Page::Project(project)
         Result::Err => Page::Error
       }
@@ -100,7 +96,7 @@ store Application {
       |> Http.header("Content-Type", "application/json")
       |> Http.withCredentials(true)
 
-    case (await send(request, decode as Project)) {
+    case await send(request, decode as Project) {
       Result::Err =>
         next { page: Page::Error }
 
@@ -121,7 +117,7 @@ store Application {
       |> Http.header("Content-Type", "application/json")
       |> Http.withCredentials(true)
 
-    case (await send(request, decode as Project)) {
+    case await send(request, decode as Project) {
       Result::Err =>
         next { page: Page::Error }
 
@@ -140,7 +136,7 @@ store Application {
       |> Http.withCredentials(true)
 
     let page =
-      await case (await send(request, decode as Project)) {
+      await case await send(request, decode as Project) {
         Result::Ok(project) => Page::Project(project)
         Result::Err => Page::Error
       }
@@ -154,7 +150,7 @@ store Application {
       |> Http.post()
       |> Http.withCredentials(true)
 
-    case (await send(request, decode as Project)) {
+    case await send(request, decode as Project) {
       Result::Err => next { page: Page::Error }
 
       Result::Ok(project) =>
@@ -171,7 +167,7 @@ store Application {
       |> Http.get()
       |> Http.withCredentials(true)
 
-    case (await send(request, decode as Array(Project))) {
+    case await send(request, decode as Array(Project)) {
       Result::Ok(projects) => next { page: Page::Sandboxes(projects) }
       Result::Err => next { page: Page::Error }
     }
@@ -183,7 +179,7 @@ store Application {
       |> Http.get()
       |> Http.withCredentials(true)
 
-    case (await send(request, decode as Array(Project))) {
+    case await send(request, decode as Array(Project)) {
       Result::Ok(projects) => next { page: Page::Home(projects) }
       Result::Err => next { page: Page::Error }
     }
@@ -196,7 +192,7 @@ store Application {
       |> Http.withCredentials(true)
 
     let page =
-      await case (await send(request, decode as Project)) {
+      await case await send(request, decode as Project) {
         Result::Ok(project) => Page::Project(project)
         Result::Err => Page::Error
       }

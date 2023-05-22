@@ -3,18 +3,18 @@ component Header {
   connect Application exposing { userStatus }
 
   get darkModeToggleNavItem : Ui.NavItem {
-    if (mobile) {
+    if mobile {
       Ui.NavItem::Item(
         action: (event : Html.Event) { setDarkMode(!darkMode) },
         iconAfter: <></>,
         label:
-          if (darkMode) {
+          if darkMode {
             "Light Mode"
           } else {
             "Dark Mode"
           },
         iconBefore:
-          if (darkMode) {
+          if darkMode {
             Ui.Icons:SUN
           } else {
             Ui.Icons:MOON
@@ -32,7 +32,7 @@ component Header {
           href="/"/>
       }
       items={
-        case (userStatus) {
+        case userStatus {
           UserStatus::LoggedIn =>
             [
               NavItems:CREATE_SANDBOX,

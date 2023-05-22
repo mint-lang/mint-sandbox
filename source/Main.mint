@@ -12,9 +12,9 @@ component Main {
       ])
 
   get content : Html {
-    case (page) {
+    case page {
       Page::Sandboxes(sandboxes) =>
-        if (Array.isEmpty(sandboxes)) {
+        if Array.isEmpty(sandboxes) {
           <Page fill={true}>
             <Ui.IllustratedMessage
               subtitle=<{ "You don't have any sandboxes yet!" }>
@@ -73,7 +73,7 @@ component Main {
         content={content}
         maxWidth="100vw"
         centered={
-          case (page) {
+          case page {
             Page::Project => false
             => true
           }

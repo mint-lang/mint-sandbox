@@ -7,12 +7,12 @@ component Page {
     margin-top: 0.5em;
     display: grid;
 
-    if (!fill) {
+    if !fill {
       padding-top: 2em;
     }
 
     > * {
-      if (fill) {
+      if fill {
         display: grid;
       }
     }

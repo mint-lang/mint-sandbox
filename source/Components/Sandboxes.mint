@@ -19,7 +19,7 @@ component Sandboxes {
 
   fun render : Html {
     <div::base>
-      for (sandbox of sandboxes) {
+      for sandbox of sandboxes {
         <Ui.Card
           href="/sandboxes/#{sandbox.id}"
           key={sandbox.id}>
