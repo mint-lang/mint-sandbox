@@ -339,7 +339,11 @@ component Editor {
                     Ui.ListItem::Item(
                       content: <{ "0.18.0" }>,
                       matchString: "0.18.0",
-                      key: "0.18.0")
+                      key: "0.18.0"),
+                    Ui.ListItem::Item(
+                      content: <{ "0.19.0" }>,
+                      matchString: "0.19.0",
+                      key: "0.19.0")
                   ]/>
               </>
             } else {
